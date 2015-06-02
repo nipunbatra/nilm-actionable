@@ -22,7 +22,7 @@ compressor_powers = {
 1 : [80, 140],
 2 : [80, 140],
 8:  [100, 400],
-11: [90, 160],
+11: [90, 350],
 13: [100, 160],
 14: [70, 200],
 15: [100, 200],
@@ -43,7 +43,6 @@ compressor_powers = {
 50: [100, 200],
 51: [100, 150],
 52: [100, 200],
-53: [100, 200],
 54: [80, 160],
 55: [60, 150],
 57: [80, 200],
@@ -62,7 +61,10 @@ compressor_powers = {
 83: [80, 150],
 84: [80, 400],
 87: [80, 300],
-88: [80, 200]
+88: [80, 200],
+131:[50,350],
+144: [50, 300],
+159:[50, 350]
 
 }
 
@@ -91,7 +93,6 @@ defrost_power = {
 50: 500,
 51: 300,
 52: 400,
-53: 400,
 54: 300,
 55: 400,
 57: 350,
@@ -110,7 +111,10 @@ defrost_power = {
 83: 300,
 84: 400,
 87: 300,
-88: 300
+88: 300,
+131:400,
+144: 600,
+159:400
 }
 
 def find_on_off(arr):
@@ -274,6 +278,7 @@ def find_on_off_durations(n):
       next_compressor_index = np.where(on_c>defrost_off_index)[0][0]
       to_ignore.append(next_compressor_index)
       to_ignore.append(next_compressor_index+1)
+      to_ignore.append(next_compressor_index+2)
       to_ignore.append(next_compressor_index-1)
 
 
@@ -289,6 +294,37 @@ def find_on_off_durations(n):
     on_duration_defrost = on_duration_defrost[on_duration_defrost.on>10]
     
     return on_duration_compressor_filtered, on_duration_defrost
+
+def find_on_off_durations_with_without_filter(n):
+    c, d = find_compressor_defrost(n)
+    on_c, off_c = find_on_off(c.astype('int').values)
+    on_d, off_d = find_on_off(d.astype('int').values)
+    to_ignore =[]
+
+    # We now need to remove the extra run of compressor due to defrost.
+    # We look for defrost off and ignore the next compressor cycle 
+
+    for defrost_off_index in off_d:
+      next_compressor_index = np.where(on_c>defrost_off_index)[0][0]
+      to_ignore.append(next_compressor_index)
+      to_ignore.append(next_compressor_index+1)
+      to_ignore.append(next_compressor_index+2)
+      to_ignore.append(next_compressor_index-1)
+
+
+    on_duration_compressor = pd.DataFrame({"on":(off_c-on_c)[:-1], 
+                                    "off":on_c[1:] - off_c[:-1]}, index=c.index[on_c[:-1]]).sort_index()
+
+    to_consider = [x for x in range(len(on_duration_compressor)) if x not in to_ignore]
+
+    on_duration_compressor_filtered = on_duration_compressor.ix[to_consider]
+
+    on_duration_defrost = pd.DataFrame({"on":(off_d-on_d)[:-1], 
+                                "off":on_d[1:] - off_d[:-1]}, index=d.index[on_d[:-1]]).sort_index()
+    on_duration_defrost = on_duration_defrost[on_duration_defrost.on>10]
+    
+    return on_duration_compressor, on_duration_compressor_filtered, on_duration_defrost
+
 
 
 
@@ -306,7 +342,10 @@ def execute():
     for n in compressor_powers.keys()[:]:
         if n not in o.keys():
             print n
-            o[n] = compute_fractions(n)
+            try:
+                o[n] = compute_fractions(n)
+            except:
+                pass
     d = pd.DataFrame(o).T
     d.columns = ["total", "baseline", "defrost", "usage"]
 
@@ -342,7 +381,44 @@ def execute():
 
 
 
-    
+
+    out = {}
+    for n in compressor_powers.keys()[:]:
+        if n not in out.keys():
+            print n
+            try:
+                t = find_baseline(n)
+                out[n] = 1.0*t.on/(t.on+t.off)
+            except:
+                pass
+
+
+fig, ax = plt.subplots(nrows=2, ncols=4)
+count = 0
+binwidth=10
+for n in compressor_powers.keys()[:8]:
+    print n
+    c, cf, d = find_on_off_durations_with_without_filter(n)
+    maximum = max(c.on.max(), cf.on.max())
+    minimum = min(c.on.min(), cf.on.min())
+    bins=np.arange(minimum, maximum + binwidth, binwidth)
+    c.on.hist(bins=bins, ax=ax[count/4][count%4])
+    cf.on.hist(alpha=0.5, bins=bins, ax=ax[count/4][count%4], facecolor='r')
+    ax[count/4][count%4].set_title("Fridge %d\nNumber of defrost cycles:%d " %(n, len(d)))
+
+    count = count+1
+plt.tight_layout()
+
+
+
+
+if n not in out.keys():
+    print n
+    try:
+        t = find_baseline(n)
+        out[n] = 1.0*t.on/(t.on+t.off)
+    except:
+        pass
 
 
 

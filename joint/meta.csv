@@ -1,0 +1,60 @@
+33,103,Light1,Living Room,32,1,0,1
+
+34,103,HLight1,Living Room,75,0,0,1
+
+35,103,HLight2,Living Room,82,0,0,1
+
+36,103,Light,Kitchen,29,1,0,2
+
+37,103,Microwave,Kitchen,1389,0,1,1
+
+38,103,Exhaust Fan,Kitchen,46,1,1,1
+
+39,103,Fridge,Kitchen,138,0,0,1
+
+40,103,Light2,Living Room,15,1,0,1
+
+41,103,Kettle_1,Kitchen,2069,1,1,1
+
+42,103,Kettle_2,Kitchen,1852,1,1,1
+
+43,103,Water Purifier,Kitchen,64,1,1,1
+
+44,103,Induction Cooker1_1,Kitchen,1015,1,1,1
+
+45,103,Induction Cooker1_2,Kitchen,1426,1,1,1
+
+46,103,Induction Cooker1_3,Kitchen,2252,1,1,1
+
+47,103,Induction Cooker1_4,Kitchen,3635,1,1,1
+
+48,103,Kettle_3,Kitchen,4059,1,1,1
+
+49,103,Induction Cooker2_1,Kitchen,1033,1,1,1
+
+50,103,Induction Cooker2_2,Kitchen,1392,1,1,1
+
+51,103,Induction Cooker2_3,Kitchen,2075,1,1,1
+
+52,103,Light,Alex's Room,37,1,0,1
+
+53,103,Geyser,Alex's Room,2148,0,0,1
+
+54,103,Heater,Alex's Room,423,1,0,1
+
+55,103,Fan Heater_1,Alex's Room,20,1,1,1
+
+56,103,Fan Heater_2,Alex's Room,1111,1,1,1
+
+57,103,Fan Heater_3,Alex's Room,2178,1,1,1
+
+58,103,TV & Stereo_1,Alex's Room,30,1,1,1
+
+59,103,TV & Stereo_2,Alex's Room,47,1,1,1
+
+76,103,TV & Stereo,Living Room,83,1,1,1
+
+78,103,Laptop,Alex's Room,32,1,0,1
+
+79,103,Iron,Alex's Room,1233,1,0,1
+
