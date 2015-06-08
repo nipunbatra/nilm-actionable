@@ -1,14 +1,12 @@
+import warnings
+
 import matplotlib.pyplot as plt
 from nilmtk import DataSet
 import nilmtk
-import warnings
 import pandas as pd
-import sys
 import numpy as np
-from pandas.tools.plotting import autocorrelation_plot
+
 warnings.filterwarnings("ignore")
-import matplotlib.dates as mdates
-import time
 from hmmlearn import hmm
 
 ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
@@ -128,6 +126,7 @@ def find_on_off(arr):
     ons_indices = ons_indices[:l]
     return ons_indices, offs_indices
 
+"""
 def find_on_off_slow(arr):
     i=1
     while i<len(arr):
@@ -144,7 +143,7 @@ def find_on_off_slow(arr):
     l = len(stop_index)
     start_index = start_index[:l]
 
-
+"""
 
 def find_compressor_defrost(n):
     df = fridges.meters[n].load().next()[('power','active')]
@@ -367,12 +366,10 @@ def execute():
     fridges_dict_nilmtk = {i:fridges.meters[i].building() for i in range(len(fridges.meters))}
     fridges_map_original = pd.Series(fridges_dict_original)
     fridges_map_nilmtk = pd.Series(fridges_dict_nilmtk)
-
-
-    to_ignore = [0, 3, 4, 5,6,7,9, 10, 12, 16, 17, 19, 20, 21, 23, 24, 27, 30, 31,
-                 32, 36, 38, 39, 40, 41, 53,54,58, 73, 74,77,82, 85,86,90,91
-                 ,94, 95,96,98,99,101,117,119,121,122,125, 127, 133, 137,
-                 141, 147, 156, 157, 160, 165,166,170,171,172]
+    to_ignore = [0, 3, 4, 5, 6, 7, 9, 10, 12, 16, 17, 19, 20, 21, 23, 24, 27, 30, 31,
+                 32, 36, 38, 39, 40, 41, 53, 54, 58, 73, 74, 77, 82, 85, 86, 90, 91 ,
+                 94, 95, 96, 98, 99, 101, 117, 119, 121, 122, 125, 127, 133, 137,
+                 141, 147, 156, 157, 160, 165, 166, 170, 171, 172]
     maybe = [60, 80, 81, 105, 113, 120, 126, 159, 162, 14, 46]
     anomaly = [6, 48]
 

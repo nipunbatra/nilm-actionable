@@ -1,5 +1,8 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
+
 plt.style.use('ggplot')
 import pandas as pd
 from lmfit import minimize, Parameters, report_fit
@@ -11,8 +14,10 @@ def get_hourly_aggregate(df, how='mean'):
     return df_c.groupby("hour").mean()
 
 
-WEATHER_HVAC_STORE = "weather_hvac.h5"
-building_num = 102
+WEATHER_HVAC_STORE = "/Users/nipunbatra/git/nilm-actionable/data/hvac/weather_hvac.h5"
+assert os.path.isfile(WEATHER_HVAC_STORE), "File does not exist"
+
+building_num = 115
 
 st = pd.HDFStore(WEATHER_HVAC_STORE)
 
@@ -29,6 +34,7 @@ header_unknown.append("a3")
 
 def fcn2min(params, x, data):
     v = params.valuesdict()
+
 
     model1 = v['a1'] * (
         ((x[24] - v['t0']) * x[0]) +
@@ -59,8 +65,8 @@ def fcn2min(params, x, data):
     )
     model2 = v['a2'] * x[25]
     model3 = v['a3'] * x[26]
-
-    return np.square(model1 + model2 + model3 - data)
+    setpoints = np.array([v['t'+str(i )] for i in range(24)])
+    return np.square(model1 + model2 + model3 - data) + 0.01*np.std(setpoints)
 
 
 # create a set of Parameters
@@ -80,6 +86,8 @@ final = data + result.residual
 # write error report
 report_fit(params)
 
+SAVE = False
+
 setpoints = [params['t%d' % i].value for i in range(24)]
 energy_df = pd.DataFrame({"energy": energy})
 energy_hourly_mean_df = get_hourly_aggregate(energy_df)
@@ -91,7 +99,8 @@ plt.plot(final, label='predicted')
 plt.legend()
 plt.xlabel("Hours")
 plt.ylabel("Energy in kWh")
-plt.savefig("pred_actual.png")
+if SAVE:
+    plt.savefig("pred_actual.png")
 fig, ax = plt.subplots(nrows=3, sharex=True)
 setpoints = [params['t%d' % i].value for i in range(24)]
 ax[0].plot(range(24), setpoints)
@@ -106,4 +115,5 @@ ax[2].set_ylabel("Hourly mean temperature")
 
 
 plt.xlabel("Hour of day")
-plt.savefig("setpoint.png")
+if SAVE:
+    plt.savefig("setpoint.png")
