@@ -1,11 +1,13 @@
+import datetime
+
 from nilmtk import *
 import nilmtk
 import forecastio
-import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+
 
 # Paramaters for downloading weather data
 api_key = "122ad90de7a1dfddf34f4c6ba367d828"
@@ -87,7 +89,7 @@ acs = nilmtk.global_meter_group.select_using_appliances(type='air conditioner')
 # For now saving only the first AC per home
 
 
-for ac in acs.meters[12:14]:
+for ac in acs.meters[:]:
     if ac.appliances[0].metadata['instance'] == 1:
         building_num = ac.building()
         power = ac.load().next()[('power', 'active')]
@@ -115,39 +117,36 @@ for ac in acs.meters[12:14]:
         for param in weather_params:
             hour_usage_df[param] = weather_data_df_restricted[param]
 
-        energy_restricted.to_hdf(WEATHER_HVAC_STORE, str(building_num) + "_Y")
-        hour_usage_df.to_hdf(WEATHER_HVAC_STORE, str(building_num) + "_X")
+        if len(energy_restricted) > 10:
 
-        # Fitting a linear regression
-        mod = sm.OLS(energy_restricted, hour_usage_df)
-        res = mod.fit()
+            energy_restricted.to_hdf(
+                WEATHER_HVAC_STORE, str(building_num) + "_Y")
+            hour_usage_df.to_hdf(WEATHER_HVAC_STORE, str(building_num) + "_X")
 
-        # Getting the regression parameters
-        reg_params = res.params
-        hour_weather_coeff = reg_params[hour_cols]
+            # Fitting a linear regression
+            mod = sm.OLS(energy_restricted, hour_usage_df)
+            res = mod.fit()
 
-        # Stuff for generating plots wrt weather conditions, energy usage and
-        # predicted parameters
+            # Getting the regression parameters
+            reg_params = res.params
+            hour_weather_coeff = reg_params[hour_cols]
 
-        hour_weather_coeff.index = [int(x[1:])
-                                    for x in hour_weather_coeff.index.values]
-        energy_df = pd.DataFrame(energy_restricted.copy())
-        energy_hourly_mean_df = get_hourly_aggregate(energy_df)
-        energy_hourly_df = get_hourly_data(energy_df, ["energy"])
-        weather_mean_hourly = get_hourly_aggregate(weather_data_df_restricted)
-        fig, ax = plt.subplots(ncols=1, nrows=5, sharex=True)
-        for i, param in enumerate(weather_params):
-            weather_mean_hourly[param].plot(
-                ax=ax[i], title=param + " " +
-                str(round(reg_params[param], 3)))
-        hour_weather_coeff.plot(ax=ax[3], title="Hour coefficients")
-        energy_hourly_df.plot(
-            ax=ax[4], title="energy consumption",
-            legend=False, alpha=0.4, style='k-')
+            # Stuff for generating plots wrt weather conditions, energy usage and
+            # predicted parameters
 
-        for i in range(5):
-            ax[i].set_xlabel("")
-        plt.suptitle("R squared:" + str(round(res.rsquared, 3)))
-        plt.tight_layout()
-        plt.savefig(str(building_num) + ".png")
-        plt.show()
+            hour_weather_coeff.index = [int(x[1:])
+                                        for x in hour_weather_coeff.index.values]
+            energy_df = pd.DataFrame(energy_restricted.copy())
+            energy_hourly_mean_df = get_hourly_aggregate(energy_df)
+            energy_hourly_df = get_hourly_data(energy_df, ["energy"])
+            weather_mean_hourly = get_hourly_aggregate(
+                weather_data_df_restricted)
+            fig, ax = plt.subplots(ncols=1, nrows=5, sharex=True)
+            for i, param in enumerate(weather_params):
+                weather_mean_hourly[param].plot(
+                    ax=ax[i], title=param + " " +
+                    str(round(reg_params[param], 3)))
+            hour_weather_coeff.plot(ax=ax[3], title="Hour coefficients")
+            energy_hourly_df.plot(
+                ax=ax[4], title="energy consumption",
+                legend=False, alpha=0.4, style='k-')

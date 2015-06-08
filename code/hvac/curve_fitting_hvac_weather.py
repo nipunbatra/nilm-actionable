@@ -1,14 +1,14 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.optimize import curve_fit
 
 WEATHER_HVAC_STORE = "weather_hvac.h5"
-building_num = 108
+building_num = 10
 
 st = pd.HDFStore(WEATHER_HVAC_STORE)
 
 energy = st[str(building_num) + "_Y"]
+energy = energy.div(60 * 1000)
 hour_usage_df = st[str(building_num) + "_X"]
 
 header_known = hour_usage_df.columns.tolist()
@@ -75,7 +75,19 @@ def func(x, p):
     return overall_out
 
 
-fitParams, fitCovariances = curve_fit(
-    fitFunc, hour_usage_df.T.values, energy.values)
+initial_params = [65 for x in range(24)]
+for i in range(3):
+    initial_params.append(100)
 
-fitFunc(hour_usage_df.T.values, *fitParams) - energy.values
+fitParams, fitCovariances = curve_fit(
+    fitFunc, hour_usage_df.T.values, energy.values, p0=initial_params)
+
+predicted = fitFunc(hour_usage_df.T.values, *fitParams)
+residual = fitFunc(hour_usage_df.T.values, *fitParams) - energy.values
+
+plt.plot(predicted, label="predicted")
+plt.plot(energy, label="gt")
+plt.legend()
+# plt.show()
+#plt.bar(range(24), fitParams[:24])
+plt.show()

@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
+
+
 plt.style.use('ggplot')
 from nilmtk import DataSet
 import nilmtk
 import warnings
 import pandas as pd
-import numpy as np
 import sys
 warnings.filterwarnings("ignore")
 
