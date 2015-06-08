@@ -1,6 +1,5 @@
 import warnings
 
-import matplotlib.pyplot as plt
 from nilmtk import DataSet
 import nilmtk
 import pandas as pd
@@ -390,32 +389,7 @@ def execute():
                 pass
 
 
-fig, ax = plt.subplots(nrows=2, ncols=4)
-count = 0
-binwidth=10
-for n in compressor_powers.keys()[:8]:
-    print n
-    c, cf, d = find_on_off_durations_with_without_filter(n)
-    maximum = max(c.on.max(), cf.on.max())
-    minimum = min(c.on.min(), cf.on.min())
-    bins=np.arange(minimum, maximum + binwidth, binwidth)
-    c.on.hist(bins=bins, ax=ax[count/4][count%4])
-    cf.on.hist(alpha=0.5, bins=bins, ax=ax[count/4][count%4], facecolor='r')
-    ax[count/4][count%4].set_title("Fridge %d\nNumber of defrost cycles:%d " %(n, len(d)))
 
-    count = count+1
-plt.tight_layout()
-
-
-
-
-if n not in out.keys():
-    print n
-    try:
-        t = find_baseline(n)
-        out[n] = 1.0*t.on/(t.on+t.off)
-    except:
-        pass
 
 
 
