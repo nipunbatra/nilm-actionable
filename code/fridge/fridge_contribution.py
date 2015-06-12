@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 
-
 plt.style.use('ggplot')
 from nilmtk import DataSet
 import nilmtk
 import warnings
 import pandas as pd
 import sys
+
 warnings.filterwarnings("ignore")
 
 ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")

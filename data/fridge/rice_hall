@@ -1,0 +1,8 @@
+import pandas as pd
+
+df = pd.read_csv("fridge_compressor_door.csv")
+
+df["on_minutes"] = (pd.to_datetime(df["On end time"]) - pd.to_datetime(df["On start time"])).astype("int")/(1e9*60)
+df["off_minutes"] = (pd.to_datetime(df["Off end time"]) - pd.to_datetime(df["Off start time"])).astype("int")/(1e9*60)
+
+df_regular = df[df.Type=="Regular"]
