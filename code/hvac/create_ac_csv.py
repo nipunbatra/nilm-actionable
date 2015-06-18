@@ -14,8 +14,8 @@ api_key = "122ad90de7a1dfddf34f4c6ba367d828"
 lat = 30.25
 lng = -97.25
 weather_params = ["temperature", "humidity", "windSpeed"]
-start = datetime.datetime(2014, 1, 5)
-number_days = 65
+start = datetime.datetime(2013, 1, 5)
+number_days = 120
 
 # Paramaters for electricity data
 start_date = "2014-05-10"
