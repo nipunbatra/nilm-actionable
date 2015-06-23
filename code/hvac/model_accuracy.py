@@ -7,6 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import cross_validation
+from sklearn.svm import SVC
 
 features = ['sleep_pred', 'morning_pred', 'work_pred', 'evening_pred', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6',
             'work_energy', 'sleep_energy', 'morning_energy',
