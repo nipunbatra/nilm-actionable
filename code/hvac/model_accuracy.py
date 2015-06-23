@@ -49,9 +49,9 @@ test = df.ix[test_idx]
 
 d = {}
 
-for N_max in range(2, 6):
+for N_max in range(2, 3):
     print N_max, time.time()
-    cls = {"RF": RandomForestClassifier(), "DT": DecisionTreeClassifier()
+    cls = {"RF": RandomForestClassifier(), "DT": DecisionTreeClassifier(), "SVM" :SVC()
            }
     out_fold1 = {"SVM": {}, "DT": {}, "KNN": {}, "RF": {}, "ET": {}}
 
