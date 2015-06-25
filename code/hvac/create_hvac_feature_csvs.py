@@ -61,7 +61,7 @@ def assign_class_from_count(x):
         return "Good"
 
 
-def assign_hvac_class(sleep_gt, morning_gt, work_gt, evening_gt):
+def assign_hvac_score(sleep_gt, morning_gt, work_gt, evening_gt):
     count = 0
     if work_gt >= 85:
         count += 1
@@ -73,6 +73,10 @@ def assign_hvac_class(sleep_gt, morning_gt, work_gt, evening_gt):
         count += 1
     if sleep_gt >= 82:
         count += 1
+    return count
+
+def assign_hvac_class(sleep_gt, morning_gt, work_gt, evening_gt):
+    count = assign_hvac_score(sleep_gt, morning_gt, work_gt, evening_gt)
     return assign_class_from_count(count)
 
 
@@ -258,12 +262,13 @@ for building_string in st.keys()[::2][:]:
                 'work_mins': (power_df.between_time("10:01", "17:00") > 500).sum(),
                 'evening_mins': (power_df.between_time("17:01", "22:00") > 500).sum(),
                 'sleep_mins': (power_df.between_time("22:01", "05:00") > 500).sum(),
-                'hvac_class': assign_hvac_class(sleep_gt, morning_gt, work_gt, evening_gt)
+                'hvac_class': assign_hvac_class(sleep_gt, morning_gt, work_gt, evening_gt),
+                'rating': assign_hvac_score(sleep_gt, morning_gt, work_gt, evening_gt)
             }
 
 results = {}
 results["binary"] = pd.DataFrame(out["binary"]).T
 results["minutes"] = pd.DataFrame(out["minutes"]).T
 
-results["binary"].to_csv("../../data/hvac/binary_a3.csv", index_label="dataid")
-results["minutes"].to_csv("../../data/hvac/minutes_a3.csv", index_label="dataid")
+results["binary"].to_csv("../../data/hvac/binary_a3_score.csv", index_label="dataid")
+results["minutes"].to_csv("../../data/hvac/minutes_a3_score.csv", index_label="dataid")

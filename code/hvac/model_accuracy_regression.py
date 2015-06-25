@@ -3,11 +3,11 @@ from itertools import combinations
 
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.metrics import confusion_matrix, mean_squared_error, mean_absolute_error
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn import cross_validation
-from sklearn.svm import SVC
+from sklearn.svm import SVC, SVR
 
 features = ['sleep_pred', 'morning_pred', 'work_pred', 'evening_pred', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6',
             'work_energy', 'sleep_energy', 'morning_energy',
@@ -44,15 +44,7 @@ y2_best_pred = None
 best_random_state = -1
 best_random_score = 0
 
-df = pd.read_csv("../../data/hvac/minutes_a3.csv")
-
-df["hvac_class_copy"] = df["hvac_class"].copy()
-
-if NUM_CLASSES ==2:
-    df.hvac_class[(df.hvac_class=="Average") | (df.hvac_class=="Good") ] ="Not bad"
-    COLUMN_NAMES = ["Bad", "Not bad"]
-else:
-    COLUMN_NAMES = ["Average", "Bad", "Good"]
+df = pd.read_csv("../../data/hvac/minutes_a3_score.csv")
 
 
 np.random.seed(42)
@@ -65,31 +57,31 @@ d = {}
 
 for N_max in range(4, 5):
     print N_max, time.time()
-    cls = {"RF": RandomForestClassifier(), "DT": DecisionTreeClassifier()
+    cls = {"RF": RandomForestRegressor()
            }
     out_fold1 = {"SVM": {}, "DT": {}, "KNN": {}, "RF": {}, "ET": {}}
 
-    y_true = test['hvac_class']
+    y_true = test['rating']
     for f in powerset(features, N_max):
         for cl_name, clf in cls.iteritems():
             np.random.seed(42)
-            clf.fit(train[list(f)], train["hvac_class"])
+            clf.fit(train[list(f)], train["rating"])
             y_pred = clf.predict(test[list(f)])
 
-            accur = accuracy_multiclass(y_pred, y_true)
+            accur = mean_absolute_error(y_pred, y_true)
             out_fold1[cl_name][f] = accur
 
     out_fold2 = {"SVM": {}, "DT": {}, "KNN": {}, "RF": {}, "ET": {}}
 
-    y_true = train['hvac_class']
+    y_true = train['rating']
     for f in powerset(features, N_max):
         np.random.seed(42)
 
         for cl_name, clf in cls.iteritems():
-            clf.fit(test[list(f)], test["hvac_class"])
+            clf.fit(test[list(f)], test["rating"])
             y_pred = clf.predict(train[list(f)])
 
-            accur = accuracy_multiclass(y_pred, y_true)
+            accur = mean_absolute_error(y_pred, y_true)
             out_fold2[cl_name][f] = accur
 
     d[N_max] = {}
@@ -102,29 +94,26 @@ for N_max in range(4, 5):
 
 def train_cross_validation(clf, seed, feature):
     np.random.seed(seed)
-    clf.fit(train[feature], train["hvac_class"])
+    clf.fit(train[feature], train["rating"])
     y_pred_1 = clf.predict(test[feature])
-    y_true = test['hvac_class']
-    accur1 = accuracy_multiclass(y_true, y_pred_1)
-    d1 = pd.DataFrame(confusion_matrix(y_true, y_pred_1))
-    d1.columns = COLUMN_NAMES
-    d1.index = COLUMN_NAMES
+    y_true = test['rating']
+    accur1 = mean_absolute_error(y_true, y_pred_1)
+
 
     np.random.seed(seed)
     clf = cls[technique]
-    clf.fit(test[feature], test["hvac_class"])
+    clf.fit(test[feature], test["rating"])
     y_pred_2 = clf.predict(train[feature])
-    y_true = train['hvac_class']
-    accur2 = accuracy_multiclass(y_true, y_pred_2)
-    d2 = pd.DataFrame(confusion_matrix(y_true, y_pred_2))
-    d2.columns = COLUMN_NAMES
-    d2.index = COLUMN_NAMES
-    return (d1+d2, (accur1+accur2)/2.0, np.hstack(np.array([y_pred_1, y_pred_2]).flatten()))
+    y_true = train['rating']
+    accur2 = mean_absolute_error(y_true, y_pred_2)
+
+    return ((accur1+accur2)/2.0, np.hstack(np.array([y_pred_1, y_pred_2]).flatten()))
 
 
 
 
 for n, dn in d.iteritems():
+    print n
     if n>=0:
         for technique, value_dict in dn.iteritems():
             accuracies = {}
@@ -132,16 +121,20 @@ for n, dn in d.iteritems():
             if technique in ["SVM"]:
                 SEEDMAX=2
             else:
-                SEEDMAX=1000
+                SEEDMAX=2000
 
 
             for seed in range(1, SEEDMAX):
-                confusion, accuracy, useless = train_cross_validation(cls[technique], seed, feature)
+                accuracy, useless = train_cross_validation(cls[technique], seed, feature)
                 accuracies[seed] = accuracy
-            x = pd.Series(accuracies)
-            x.sort()
-            optimal_seed = x.index.values[-1]
-            optimal_confusion, temp, predicted_labels = train_cross_validation(cls[technique], optimal_seed, feature)
-            value_dict["optimal_confusion"] = optimal_confusion
-            value_dict["predicted_labels"] = predicted_labels
+            accuracies_series = pd.Series(accuracies)
+            accuracies_series.sort()
+            optimal_seed = accuracies_series.index.values[0]
+            temp, predicted_labels = train_cross_validation(cls[technique], optimal_seed, feature)
 
+            value_dict["predicted_labels"] = predicted_labels
+            value_dict["optimal_seed"] = optimal_seed
+            value_dict["optimised_accuracy"] = accuracies_series.values[0]
+
+#y = d[3]['RF']['predicted_labels']
+#x = np.hstack([test['rating'].values, train['rating'].values])
