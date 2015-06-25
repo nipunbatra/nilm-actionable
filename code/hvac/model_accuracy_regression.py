@@ -53,13 +53,19 @@ train_idx, test_idx = cross_validation.train_test_split(range(len(df)), train_si
 train = df.ix[train_idx]
 test = df.ix[test_idx]
 
-d = {}
+"""
+d = {3: {'RF': {'accuracy': 0.86639610389610389,
+   'feature': ('evening_pred', 'work_energy', 'work_mins'),
+   }}}
+"""
+d  = {}
 
-for N_max in range(4, 5):
+for N_max in range(3, 6):
     print N_max, time.time()
-    cls = {"RF": RandomForestRegressor()
+    cls = {"RF": RandomForestRegressor(), "DT": DecisionTreeRegressor()
            }
     out_fold1 = {"SVM": {}, "DT": {}, "KNN": {}, "RF": {}, "ET": {}}
+
 
     y_true = test['rating']
     for f in powerset(features, N_max):
@@ -88,8 +94,8 @@ for N_max in range(4, 5):
     for technique in cls.iterkeys():
         temp = ((pd.Series(out_fold1[technique]) + pd.Series(out_fold2[technique])) / 2).dropna()
         temp.sort()
-        d[N_max][technique] = {"feature": temp.index.values[-1],
-                               "accuracy": temp.values[-1]}
+        d[N_max][technique] = {"feature": temp.index.values[0],
+                               "accuracy": temp.values[0]}
 
 
 def train_cross_validation(clf, seed, feature):
@@ -114,6 +120,7 @@ def train_cross_validation(clf, seed, feature):
 
 for n, dn in d.iteritems():
     print n
+    print d
     if n>=0:
         for technique, value_dict in dn.iteritems():
             accuracies = {}
@@ -121,7 +128,7 @@ for n, dn in d.iteritems():
             if technique in ["SVM"]:
                 SEEDMAX=2
             else:
-                SEEDMAX=2000
+                SEEDMAX=5000
 
 
             for seed in range(1, SEEDMAX):
@@ -136,5 +143,33 @@ for n, dn in d.iteritems():
             value_dict["optimal_seed"] = optimal_seed
             value_dict["optimised_accuracy"] = accuracies_series.values[0]
 
-#y = d[3]['RF']['predicted_labels']
-#x = np.hstack([test['rating'].values, train['rating'].values])
+
+
+def make_plot():
+    y = d[4]['RF']['predicted_labels']
+    x = np.hstack([test['rating'].values, train['rating'].values])
+
+    import sys
+    import matplotlib.pyplot as plt
+    sys.path.append("../common")
+    from common_functions import latexify, format_axes
+    latexify()
+    fig, ax = plt.subplots()
+    ax.scatter(x, y)
+    ax.set_ylabel("Predicted score")
+    ax.set_xlabel("Actual score")
+    ax.set_xlim((-0.5, 4.5))
+    ax.set_ylim((-0.5, 4.5))
+    ax.set_aspect('equal')
+    plt.tight_layout()
+    format_axes(ax)
+    plt.savefig("../../figures/hvac/regression.png")
+    plt.savefig("../../figures/hvac/regression.pdf")
+
+def optimal_dt():
+    from sklearn import tree
+    clf_tree  = DecisionTreeRegressor()
+    seed = 4133
+    feature = list(d[4]['DT']['feature'])
+    accuracy, useless = train_cross_validation(clf_tree, seed, feature)
+    tree.export_graphviz(clf_tree, out_file='../../figures/hvac/tree.dot', feature_names = feature)
