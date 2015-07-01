@@ -31,7 +31,7 @@ true_usage_mins = find_usage(energy_activities_df)
 
 
 error = {}
-for threshold_percentage in range(1, 20):
+for threshold_percentage in range(1, 40):
     threshold = BASELINE_DUTY*1.0*threshold_percentage/100 + BASELINE_DUTY
     pred_df = df_regular[df_regular.duty_percentage>threshold]
     pred_df_mins = find_usage(pred_df)
@@ -40,18 +40,18 @@ for threshold_percentage in range(1, 20):
 
 
 
-result_df = pd.DataFrame({"error":error})
+result_df = pd.DataFrame({"error":error}).abs()
 
 
 from common_functions import latexify, format_axes
 
 for field in ["error"]:
     latexify(columns=1)
-    ax = result_df[field].plot(kind='bar')
-    ax.set_ylabel(str.capitalize(field))
+    ax = result_df[field].plot()
+    ax.set_ylabel(r'Usage Energy Error $\%$')
     ax.set_xlabel("Percentage threshold")
     format_axes(ax)
-    plt.ylim((0, 1))
+    #plt.ylim((0, 1))
     plt.tight_layout()
     plt.savefig("../../figures/fridge/%s_fridge_activity_energy.png" %field)
     plt.savefig("../../figures/fridge/%s_fridge_activity_energy.pdf" %field)

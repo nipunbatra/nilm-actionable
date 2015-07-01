@@ -28,23 +28,27 @@ for fridge_number, fridge_csv_path in paths.iteritems():
     dfs[fridge_number] = read_fridge_csv(csv_path=fridge_csv_path)
     dfs[fridge_number] = dfs[fridge_number]["2015-04-12":"2015-04-12 10:00"]
 
+PLOT = False
 
-from common_functions import latexify, format_axes
-latexify(columns=1, fig_height=4.4)
+if PLOT:
+    from common_functions import latexify, format_axes
+    latexify(columns=1, fig_height=4.4)
 
-fig, ax = plt.subplots(nrows=4, sharex=True)
-count = 0
-for fridge_number, fridge_df in dfs.iteritems():
-    print fridge_number
-    fridge_df["power"].plot(ax=ax[count])
-    ax[count].set_ylabel("Power (W)")
-    ax[count].set_title("Fridge %d" %fridge_number)
-    format_axes(ax[count])
-    count += 1
-ax[count-1].set_xlabel("Time")
-plt.tight_layout()
-plt.savefig("../../figures/fridge/rice_hall_comparison.pdf")
-plt.savefig("../../figures/fridge/rice_hall_comparison.png")
+    fig, ax = plt.subplots(nrows=4, sharex=True)
+    count = 0
+    for fridge_number, fridge_df in dfs.iteritems():
+        print fridge_number
+        fridge_df["power"].plot(ax=ax[count])
+        ax[count].set_ylabel("Power (W)")
+        ax[count].set_title("Fridge %d" %fridge_number)
+        format_axes(ax[count])
+        count += 1
+    ax[count-1].set_xlabel("Time")
+    plt.tight_layout()
+    plt.savefig("../../figures/fridge/rice_hall_comparison.pdf")
+    plt.savefig("../../figures/fridge/rice_hall_comparison.png")
+    plt.show()
+
 
 #Printing the average steady state and transient power
 
@@ -52,6 +56,7 @@ plt.savefig("../../figures/fridge/rice_hall_comparison.png")
 print "Fridge #, Transient_power, Steady_State_power"
 for fridge_number, fridge_df in dfs.iteritems():
     df = fridge_df["power"]
+
     # Finding transients
     df2 = df.ix[argrelextrema(df.values, np.greater)[0]]
     if fridge_number==2:
@@ -61,9 +66,8 @@ for fridge_number, fridge_df in dfs.iteritems():
     tr = df2[df2>threshold]
     #Finding steady state
     st = df[(df>50)&(df<200)]
-    print fridge_number, tr.mean(), st.mean()
+    print fridge_number, df.mean(), tr.mean(), st.mean()
 
 
-plt.show()
 
 

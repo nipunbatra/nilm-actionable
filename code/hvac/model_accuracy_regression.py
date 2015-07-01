@@ -60,9 +60,9 @@ d = {3: {'RF': {'accuracy': 0.86639610389610389,
 """
 d  = {}
 
-for N_max in range(3, 6):
+for N_max in range(4, 5):
     print N_max, time.time()
-    cls = {"RF": RandomForestRegressor(), "DT": DecisionTreeRegressor()
+    cls = {"RF": RandomForestRegressor()
            }
     out_fold1 = {"SVM": {}, "DT": {}, "KNN": {}, "RF": {}, "ET": {}}
 
@@ -128,7 +128,7 @@ for n, dn in d.iteritems():
             if technique in ["SVM"]:
                 SEEDMAX=2
             else:
-                SEEDMAX=5000
+                SEEDMAX=50000
 
 
             for seed in range(1, SEEDMAX):

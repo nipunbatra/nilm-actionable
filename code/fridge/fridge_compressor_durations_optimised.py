@@ -4,21 +4,19 @@ from nilmtk import DataSet
 import nilmtk
 import pandas as pd
 import numpy as np
+from numba import autojit, jit
 
 warnings.filterwarnings("ignore")
-from hmmlearn import hmm
 
 ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
 
-
-Wm_to_kwh = 1.66666667* 1e-5
-
+Wm_to_kwh = 1.66666667 * 1e-5
 
 compressor_powers = {
     1: [80, 140],
     2: [80, 140],
-    8:  [100, 400],
+    8: [100, 400],
     11: [90, 350],
     13: [100, 160],
     14: [70, 200],
@@ -213,117 +211,124 @@ defrost_power = {
     167: 400,
     169: 500,
     170: 650,
-    }
+}
 
 
 def find_on_off(arr):
     diff_arr = np.diff(arr)
     offs_indices = np.where(diff_arr == -1)[0]
     ons_indices = np.where(diff_arr == 1)[0]
-    if offs_indices[0]<ons_indices[0]:
+    if offs_indices[0] < ons_indices[0]:
         offs_indices = offs_indices[1:]
     l = min(len(ons_indices), len(offs_indices))
     offs_indices = offs_indices[:l]
     ons_indices = ons_indices[:l]
     return ons_indices, offs_indices
 
-"""
-def find_on_off_slow(arr):
-    i=1
-    while i<len(arr):
-        if arr[i] - arr[i-1]==1:
-            start_index.append(i)
-            i = i+1
-            #On now, wait till off found
-            while i<len(arr) and ((arr[i] - arr[i-1])!=-1) :
-                i = i+1
-            if i<len(arr):
-                stop_index.append(i)
-        else:
-            i = i+1
-    l = len(stop_index)
-    start_index = start_index[:l]
 
-"""
-
-
-def find_compressor_defrost(n):
-    df = fridges.meters[n].load().next()[('power', 'active')]
+def find_compressor_defrost(df, n):
     [compressor_min, compressor_max] = compressor_powers[n]
     defrost_min = defrost_power[n]
     compressor = (df > compressor_min) & (df < compressor_max)
     defrost_idx = df > defrost_min
     defrost = defrost_idx
     compressor[defrost_idx] = False
-    
+
     # return compressor
     # Eliminate 1 minute cycles
-    for i in range(len(df)-2):
-        if compressor.ix[i] is False and compressor.ix[i+1] is True and compressor.ix[i+2]is False:
-            compressor.ix[i+1] = False
-        elif compressor.ix[i] is True and compressor.ix[i+1] is False and compressor.ix[i+2] is True:
-            compressor.ix[i+1] = True
+    for i in range(len(df) - 2):
+        if compressor.ix[i] is False and compressor.ix[i + 1] is True and compressor.ix[i + 2] is False:
+            compressor.ix[i + 1] = False
+        elif compressor.ix[i] is True and compressor.ix[i + 1] is False and compressor.ix[i + 2] is True:
+            compressor.ix[i + 1] = True
     return compressor, defrost
-
-
-def compute_fractions_df(df):
-    a, b, c, tot, mins = fractions_df(n)
-    return wm_to_kwh_per_month(tot, mins), wm_to_kwh_per_month(a, mins), wm_to_kwh_per_month(c, mins), wm_to_kwh_per_month(b, mins)
-
 
 def compute_fractions(n):
     a, b, c, tot, mins = fractions(n)
-    return wm_to_kwh_per_month(tot, mins), wm_to_kwh_per_month(a, mins), wm_to_kwh_per_month(c, mins), wm_to_kwh_per_month(b, mins)
+    return wm_to_kwh_per_month(tot, mins), wm_to_kwh_per_month(a, mins), wm_to_kwh_per_month(c,
+                                                                                             mins), wm_to_kwh_per_month(
+        b, mins)
+
+def compute_fractions_new(n):
+    a, b, c, tot, mins, usage_cycles, non_usage_cycles, defrost_cycles, baseline_duty_percent = fractions_new(n, 10)
+    return wm_to_kwh_per_month(tot, mins), wm_to_kwh_per_month(a, mins), wm_to_kwh_per_month(c,
+                                                                                             mins), wm_to_kwh_per_month(
+        b, mins), usage_cycles, non_usage_cycles, defrost_cycles, baseline_duty_percent, mins
 
 
 def wm_to_kwh_per_month(wm, mins):
-    return wm*Wm_to_kwh/(mins*1.0/(1440*30))
+    return wm * Wm_to_kwh / (mins * 1.0 / (1440 * 30))
 
+def fractions_new(n, percentage_threshold = 10):
+    f = fridges.meters[n].load().next()[('power', 'active')]
+    c, d = find_compressor_defrost(f, n)
+    # Sum of all the power when the compressor was ON
+    mean_compressor_power = f[c].mean()
 
-def return_states_df(n):
-    df = fridges.meters[n].load().next()[('power','active')]
-    x = df.head(10000)
-    x = x[x < 2000]
-    x = x.reshape((len(x), 1))
-    # Defrost state? (N=3), else 2
-    model = hmm.GaussianHMM(n_components=2, covariance_type="full", n_iter=1000)
-    model.fit([x])
-    z = model.means_.reshape((2,))
-    z.sort()
-    raw_power = df.values
-    y1 = np.abs(raw_power - z[0])
-    y2 = np.abs(raw_power - z[1])
-    y_act = np.zeros(y1.shape)
-    y_act[np.where((y1-y2>0))[0]]=1
-    # y_act[np.where((y1-y2>0)&(y2<4*z[1]))[0]]=1
-    df_states = pd.Series(y_act, index=df.index)
-    return df_states, z[1]
-
-
-def fractions(n):
-    f = fridges.meters[n].load().next()[('power','active')]
-    c, d = find_compressor_defrost(n)
-    power_c_sum = f[c].sum()
-    print power_c_sum
-    
-    df_cm, df_d = find_on_off_durations(n)
+    df_cm, df_d = find_on_off_durations(f, n)
     baseline = df_cm.between_time("01:00", "05:00").median()
-    baseline_duty_percent = baseline['on']/(baseline['on']+baseline['off'])
-    
-    print baseline_duty_percent
-    
+    baseline_duty_percent = baseline['on'] / (baseline['on'] + baseline['off'])
+
+
     total_mins = len(f)
-    baseline_energy = total_mins*baseline_duty_percent*f[c].mean()
-    
-    print total_mins
-    
+    baseline_energy = 0.0
+
+
     defrost_energy_self = f[d].sum()
     defrost_energy_extra_compressor = 0.0
     for i in range(len(df_d.index)):
         runtime = df_cm[df_d.index[i]:].head(3)['on'].max()
         if runtime > baseline['on']:
-            extra_run_energy = (runtime-baseline['on'])*f[c].mean()
-            defrost_energy_extra_compressor = defrost_energy_extra_compressor +extra_run_energy
+            extra_run_energy = (runtime - baseline['on']) * mean_compressor_power
+            defrost_energy_extra_compressor = defrost_energy_extra_compressor + extra_run_energy
+
+    defrost_energy = defrost_energy_self + defrost_energy_extra_compressor
+
+    baseline_threshold = baseline_duty_percent + baseline_duty_percent*percentage_threshold/100
+    print baseline_threshold, baseline_duty_percent
+
+    df_cm["duty"] = df_cm["on"]*1.0/(df_cm["on"] + df_cm["off"])
+    usage_df_cm = df_cm[df_cm.duty> baseline_threshold]
+    usage_df_cm["cycle_mins"] =  (usage_df_cm["on"] + usage_df_cm["off"])
+    usage_mins_df = (usage_df_cm.duty - baseline_duty_percent)*usage_df_cm["cycle_mins"]
+    #usage_mins_df = usage_df_cm.on - (cycle_mins*baseline_duty_percent*1.0/100)
+    usage_mins = usage_mins_df.sum()
+    baseline_mins = usage_df_cm["cycle_mins"]*baseline_duty_percent
+    baseline_energy = baseline_energy + baseline_mins.sum()*mean_compressor_power
+    non_usage_df_cm = df_cm[df_cm.duty<= baseline_threshold]
+    non_usage_mins = non_usage_df_cm["on"].sum()
+    baseline_energy = baseline_energy + non_usage_mins*mean_compressor_power
+    usage_energy = usage_mins*mean_compressor_power
+    #usage_energy = usage_energy - defrost_energy_extra_compressor
+    total_energy = f.sum()
+    return baseline_energy, usage_energy, defrost_energy, total_energy,\
+           total_mins, len(usage_df_cm), len(non_usage_df_cm), len(df_d), baseline_duty_percent
+
+
+def fractions(n):
+    f = fridges.meters[n].load().next()[('power', 'active')]
+    c, d = find_compressor_defrost(f, n)
+    # Sum of all the power when the compressor was ON
+    power_c_sum = f[c].sum()
+
+    df_cm, df_d = find_on_off_durations(f, n)
+    baseline = df_cm.between_time("01:00", "05:00").median()
+    baseline_duty_percent = baseline['on'] / (baseline['on'] + baseline['off'])
+
+    print baseline_duty_percent
+
+    total_mins = len(f)
+    baseline_energy = total_mins * baseline_duty_percent * f[c].mean()
+
+    print total_mins
+
+    defrost_energy_self = f[d].sum()
+    defrost_energy_extra_compressor = 0.0
+    for i in range(len(df_d.index)):
+        runtime = df_cm[df_d.index[i]:].head(3)['on'].max()
+        if runtime > baseline['on']:
+            extra_run_energy = (runtime - baseline['on']) * f[c].mean()
+            defrost_energy_extra_compressor = defrost_energy_extra_compressor + extra_run_energy
             power_c_sum = power_c_sum - extra_run_energy
     defrost_energy = defrost_energy_self + defrost_energy_extra_compressor
 
@@ -331,44 +336,9 @@ def fractions(n):
     total_energy = f.sum()
     return baseline_energy, usage_energy, defrost_energy, total_energy, total_mins
 
-def return_states_df_defrost(n):
-    df = fridges.meters[n].load().next()[('power','active')]
-    X = df.head(10000)
-    X = X[X<2000]
-    X = X.reshape((len(X),1))
-    # Defrost state? (N=3), else 2
-    model = hmm.GaussianHMM(n_components=3, covariance_type="full", n_iter=1000)
-    model.fit([X])
-    z = model.means_.reshape((3,))
-    z.sort()
-    raw_power = df.values
-    p = model.predict(raw_power.reshape((len(raw_power),1)))
-    y1 = np.abs(raw_power - z[0])
-    y2 = np.abs(raw_power - z[1])
-    y_act = np.zeros(y1.shape)
-    y_act[np.where((y1-y2>0)&(y2<1.2*z[1]))[0]]=1
-    df_states = pd.Series(y_act, index=df.index)
-    df_states_hmm = pd.Series(p, index=df.index)
-    return df_states, df_states_hmm, z
 
-
-def find_weekend_indices(datetime_array):
-    indices = []
-    for i in range(len(datetime_array)):
-        if datetime_array[i].weekday()>=5:
-            indices.append(i)
-    return indices
-
-
-def highlight_weekend(weekend_indices,ax):
-    i = 0
-    while i < len(weekend_indices):
-        ax.axvspan(weekend_indices[i], weekend_indices[i]+2, facecolor='green', edgecolor='none', alpha=.2)
-        i += 2
-
-
-def find_on_off_durations(n):
-    c, d = find_compressor_defrost(n)
+def find_on_off_durations(power_df, n):
+    c, d = find_compressor_defrost(power_df, n)
     on_c, off_c = find_on_off(c.astype('int').values)
     on_d, off_d = find_on_off(d.astype('int').values)
     to_ignore = []
@@ -377,11 +347,11 @@ def find_on_off_durations(n):
     # We look for defrost off and ignore the next compressor cycle 
 
     for defrost_off_index in off_d:
-        next_compressor_index = np.where(on_c>defrost_off_index)[0][0]
+        next_compressor_index = np.where(on_c > defrost_off_index)[0][0]
         to_ignore.append(next_compressor_index)
-        to_ignore.append(next_compressor_index+1)
-        to_ignore.append(next_compressor_index+2)
-        to_ignore.append(next_compressor_index-1)
+        to_ignore.append(next_compressor_index + 1)
+        to_ignore.append(next_compressor_index + 2)
+        to_ignore.append(next_compressor_index - 1)
 
     on_duration_compressor = pd.DataFrame({"on": (off_c - on_c)[:-1],
                                            "off": on_c[1:] - off_c[:-1]},
@@ -395,7 +365,7 @@ def find_on_off_durations(n):
                                         "off": on_d[1:] - off_d[:-1]},
                                        index=d.index[on_d[:-1]]).sort_index()
     on_duration_defrost = on_duration_defrost[on_duration_defrost.on > 10]
-    
+
     return on_duration_compressor_filtered, on_duration_defrost
 
 
@@ -403,34 +373,30 @@ def find_on_off_durations_with_without_filter(n):
     c, d = find_compressor_defrost(n)
     on_c, off_c = find_on_off(c.astype('int').values)
     on_d, off_d = find_on_off(d.astype('int').values)
-    to_ignore =[]
+    to_ignore = []
 
     # We now need to remove the extra run of compressor due to defrost.
     # We look for defrost off and ignore the next compressor cycle 
 
     for defrost_off_index in off_d:
-      next_compressor_index = np.where(on_c>defrost_off_index)[0][0]
-      to_ignore.append(next_compressor_index)
-      to_ignore.append(next_compressor_index+1)
-      to_ignore.append(next_compressor_index+2)
-      to_ignore.append(next_compressor_index-1)
+        next_compressor_index = np.where(on_c > defrost_off_index)[0][0]
+        to_ignore.append(next_compressor_index)
+        to_ignore.append(next_compressor_index + 1)
+        to_ignore.append(next_compressor_index + 2)
+        to_ignore.append(next_compressor_index - 1)
 
-
-    on_duration_compressor = pd.DataFrame({"on":(off_c-on_c)[:-1], 
-                                    "off":on_c[1:] - off_c[:-1]}, index=c.index[on_c[:-1]]).sort_index()
+    on_duration_compressor = pd.DataFrame({"on": (off_c - on_c)[:-1],
+                                           "off": on_c[1:] - off_c[:-1]}, index=c.index[on_c[:-1]]).sort_index()
 
     to_consider = [x for x in range(len(on_duration_compressor)) if x not in to_ignore]
 
     on_duration_compressor_filtered = on_duration_compressor.ix[to_consider]
 
-    on_duration_defrost = pd.DataFrame({"on":(off_d-on_d)[:-1], 
-                                "off":on_d[1:] - off_d[:-1]}, index=d.index[on_d[:-1]]).sort_index()
-    on_duration_defrost = on_duration_defrost[on_duration_defrost.on>10]
-    
+    on_duration_defrost = pd.DataFrame({"on": (off_d - on_d)[:-1],
+                                        "off": on_d[1:] - off_d[:-1]}, index=d.index[on_d[:-1]]).sort_index()
+    on_duration_defrost = on_duration_defrost[on_duration_defrost.on > 10]
+
     return on_duration_compressor, on_duration_compressor_filtered, on_duration_defrost
-
-
-
 
 
 def find_baseline(n):
@@ -440,26 +406,39 @@ def find_baseline(n):
 
 
 print "he"
-
+import time
+start = time.time()
 o = {}
-for n in compressor_powers.keys()[124:126]:
-    print n
+o_new = {}
+for n in compressor_powers.keys()[:]:
     if n not in o.keys():
-        print n
+        print "Computing for", n
         try:
-            o[n] = compute_fractions(n)
-        except:
-            pass
-d = pd.DataFrame(o).T
-d.columns = ["total", "baseline", "defrost", "usage"]
+            #o[n] = compute_fractions(n)
+            o_new[n] = compute_fractions_new(n)
+        except Exception as e:
+            print "EXCEPTION"
+            print e
+end = time.time()
 
-dp = d[d.usage > 0]
-dp["artifical_sum"] = dp.baseline+dp.defrost+dp.usage
+print end-start
+#d = pd.DataFrame(o).T
+#d.columns = ["total", "baseline", "defrost", "usage"]
 
-dp["baseline_percentage"] = dp.baseline*100/dp.artifical_sum
-dp["defrost_percentage"] = dp.defrost*100/dp.artifical_sum
-dp["usage_percentage"] = dp.usage*100/dp.artifical_sum
+d_new = pd.DataFrame(o_new).T
+d_new.columns = ["total", "baseline", "defrost", "usage",
+                 "usage_cycles", "non_usage_cycles",
+                 "defrost_cycles","baseline_duty_percent", "total_mins"]
 
+
+#d = d[d.usage > 0]
+d_new["artifical_sum"] = d_new.baseline + d_new.defrost + d_new.usage
+
+d_new["baseline_percentage"] = d_new.baseline * 100 / d_new.total
+d_new["defrost_percentage"] = d_new.defrost * 100 / d_new.total
+d_new["usage_percentage"] = d_new.usage * 100 / d_new.total
+
+d_new.to_csv("../../data/fridge/usage_defrost_cycles.csv", index_label="home")
 """
 ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
 
@@ -479,12 +458,12 @@ to_ignore = [0, 3, 4, 5, 6, 7, 9, 10, 12, 16, 17, 19, 20, 21, 23, 24, 27, 30, 31
 maybe = [60, 80, 81, 105, 113, 120, 126, 159, 162, 14, 46]
 anomaly = [6, 48]
 
+"""
 
 
 
 
-
-
+"""
 out = {}
 for n in compressor_powers.keys()[:]:
     if n not in out.keys():
@@ -496,10 +475,3 @@ for n in compressor_powers.keys()[:]:
             pass
 
 """
-
-
-
-
-
-
-
