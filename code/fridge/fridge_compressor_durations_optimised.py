@@ -46,7 +46,7 @@ compressor_powers = {
     60: [80, 150],
     61: [80, 150],
     67: [80, 300],
-    68: [80, 200],
+    68: [50, 200],
     70: [80, 200],
     72: [80, 300],
     75: [80, 200],
@@ -146,7 +146,7 @@ defrost_power = {
     60: 400,
     61: 350,
     67: 400,
-    68: 400,
+    68: 300,
     70: 350,
     72: 400,
     75: 400,
@@ -250,7 +250,7 @@ def compute_fractions(n):
         b, mins)
 
 def compute_fractions_new(n):
-    a, b, c, tot, mins, usage_cycles, non_usage_cycles, defrost_cycles, baseline_duty_percent = fractions_new(n, 10)
+    a, b, c, tot, mins, usage_cycles, non_usage_cycles, defrost_cycles, baseline_duty_percent = fractions_new(n, 17)
     return wm_to_kwh_per_month(tot, mins), wm_to_kwh_per_month(a, mins), wm_to_kwh_per_month(c,
                                                                                              mins), wm_to_kwh_per_month(
         b, mins), usage_cycles, non_usage_cycles, defrost_cycles, baseline_duty_percent, mins
@@ -259,7 +259,7 @@ def compute_fractions_new(n):
 def wm_to_kwh_per_month(wm, mins):
     return wm * Wm_to_kwh / (mins * 1.0 / (1440 * 30))
 
-def fractions_new(n, percentage_threshold = 10):
+def fractions_new(n, percentage_threshold = 17):
     f = fridges.meters[n].load().next()[('power', 'active')]
     c, d = find_compressor_defrost(f, n)
     # Sum of all the power when the compressor was ON
@@ -339,9 +339,14 @@ def fractions(n):
 
 def find_on_off_durations(power_df, n):
     c, d = find_compressor_defrost(power_df, n)
-    on_c, off_c = find_on_off(c.astype('int').values)
-    on_d, off_d = find_on_off(d.astype('int').values)
+    c_array = c.astype('int').values.reshape(len(c),)
+    d_array = d.astype('int').values.reshape(len(c),)
+
+    on_c, off_c = find_on_off(c_array)
+    on_d, off_d = find_on_off(d_array)
     to_ignore = []
+
+    """
 
     # We now need to remove the extra run of compressor due to defrost.
     # We look for defrost off and ignore the next compressor cycle 
@@ -352,6 +357,9 @@ def find_on_off_durations(power_df, n):
         to_ignore.append(next_compressor_index + 1)
         to_ignore.append(next_compressor_index + 2)
         to_ignore.append(next_compressor_index - 1)
+
+    """
+    to_ignore = []
 
     on_duration_compressor = pd.DataFrame({"on": (off_c - on_c)[:-1],
                                            "off": on_c[1:] - off_c[:-1]},
@@ -405,40 +413,42 @@ def find_baseline(n):
     return df_c.groupby([times.hour]).median().min()
 
 
-print "he"
-import time
-start = time.time()
-o = {}
-o_new = {}
-for n in compressor_powers.keys()[:]:
-    if n not in o.keys():
-        print "Computing for", n
-        try:
-            #o[n] = compute_fractions(n)
-            o_new[n] = compute_fractions_new(n)
-        except Exception as e:
-            print "EXCEPTION"
-            print e
-end = time.time()
+def execute():
+    import time
+    start = time.time()
+    o = {}
+    o_new = {}
+    #for n in [68]:
+    for n in compressor_powers.keys()[:]:
+        if n not in o.keys():
+            print "Computing for", n
+            try:
+                #o[n] = compute_fractions(n)
+                o_new[n] = compute_fractions_new(n)
+            except Exception as e:
+                print "EXCEPTION"
+                print e
+    end = time.time()
 
-print end-start
-#d = pd.DataFrame(o).T
-#d.columns = ["total", "baseline", "defrost", "usage"]
+    #d = pd.DataFrame(o).T
+    #d.columns = ["total", "baseline", "defrost", "usage"]
 
-d_new = pd.DataFrame(o_new).T
-d_new.columns = ["total", "baseline", "defrost", "usage",
-                 "usage_cycles", "non_usage_cycles",
-                 "defrost_cycles","baseline_duty_percent", "total_mins"]
+    d_new = pd.DataFrame(o_new).T
+    d_new.columns = ["total", "baseline", "defrost", "usage",
+                     "usage_cycles", "non_usage_cycles",
+                     "defrost_cycles","baseline_duty_percent", "total_mins"]
 
 
-#d = d[d.usage > 0]
-d_new["artifical_sum"] = d_new.baseline + d_new.defrost + d_new.usage
+    #d = d[d.usage > 0]
+    d_new["artifical_sum"] = d_new.baseline + d_new.defrost + d_new.usage
 
-d_new["baseline_percentage"] = d_new.baseline * 100 / d_new.total
-d_new["defrost_percentage"] = d_new.defrost * 100 / d_new.total
-d_new["usage_percentage"] = d_new.usage * 100 / d_new.total
+    d_new["baseline_percentage"] = d_new.baseline * 100 / d_new.total
+    d_new["defrost_percentage"] = d_new.defrost * 100 / d_new.total
+    d_new["usage_percentage"] = d_new.usage * 100 / d_new.total
 
-d_new.to_csv("../../data/fridge/usage_defrost_cycles.csv", index_label="home")
+    d_new.to_csv("../../data/fridge/usage_defrost_cycles.csv", index_label="home")
+
+
 """
 ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
 

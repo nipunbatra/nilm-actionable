@@ -44,6 +44,7 @@ format_axes(ax)
 plt.savefig("../../figures/fridge/defrost_energy_saving.png")
 plt.savefig("../../figures/fridge/defrost_energy_saving.pdf")
 
+"""
 # PLotting the fridge with unusually high defrost
 home = int(feedback.ix[feedback.num_defrost_per_day.argmax()]["home"])
 f = fridges.meters[home].load().next()[('power','active')]
@@ -59,7 +60,6 @@ plt.ylabel("Power consumption (W)")
 plt.tight_layout()
 plt.savefig("../../figures/fridge/defrost_high.png")
 plt.savefig("../../figures/fridge/defrost_high.pdf")
-"""
 med = df.usage_percentage.median()
 feedback_median = df.usage_percentage[(df.usage_percentage<med+10)&(df.usage_percentage>med)]
 feedback_more_than_10 = df.usage_percentage[(df.usage_percentage>med+10)]
