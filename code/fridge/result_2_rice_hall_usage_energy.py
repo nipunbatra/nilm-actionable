@@ -31,11 +31,24 @@ true_usage_mins = find_usage(energy_activities_df)
 
 
 error = {}
+precision = {}
+recall = {}
 for threshold_percentage in range(1, 40):
     threshold = BASELINE_DUTY*1.0*threshold_percentage/100 + BASELINE_DUTY
     pred_df = df_regular[df_regular.duty_percentage>threshold]
     pred_df_mins = find_usage(pred_df)
     error[threshold_percentage] = (pred_df_mins-true_usage_mins)*1.0/true_usage_mins
+    v_counts = df_regular[df_regular.duty_percentage>threshold]["Energy activity"].value_counts()
+    if False not in v_counts.index:
+        false_count = 0
+    else:
+        false_count = v_counts[False]
+    if True not in v_counts.index:
+        true_count = 0
+    else:
+        true_count = v_counts[True]
+    precision[threshold_percentage] = true_count*1.0/(true_count+false_count)
+    recall[threshold_percentage] = true_count*1.0/energy_activities_total
 
 
 
