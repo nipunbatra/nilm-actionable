@@ -70,7 +70,7 @@ subplot.axis('tight')
 subplot.legend(
     [a.collections[0]],
     ['Learned decision function'], loc=4)
-subplot.set_xlabel("%d. %s (errors: %d)" % (1, "rob", n_errors))
+#subplot.set_xlabel("%d. %s (errors: %d)" % (1, "rob", n_errors))
 subplot.set_xlim((X.min(), X.max()))
 subplot.set_ylim((Y.min(), Y.max()))
 plt.axhspan(df["usage_percentage"].median(), df["usage_percentage"].median())
@@ -85,8 +85,8 @@ plt.ylim((ylims[0]-5, ylims[1]+5))
 xlims = plt.xlim()
 plt.xlim((xlims[0]-0.1, xlims[1]+0.1))
 plt.tight_layout()
-plt.savefig("../../figures/fridge/usage_energy_ratio.png")
-plt.savefig("../../figures/fridge/usage_energy_ratio.pdf")
+#plt.savefig("../../figures/fridge/usage_energy_ratio.png")
+#plt.savefig("../../figures/fridge/usage_energy_ratio.pdf")
 plt.show()
 
 """
