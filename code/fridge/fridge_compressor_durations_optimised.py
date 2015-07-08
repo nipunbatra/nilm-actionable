@@ -10,7 +10,11 @@ warnings.filterwarnings("ignore")
 
 import sys
 
-ds_path = sys.argv[1]
+if(len(sys.argv) < 2):
+    ds_path = "/Users/nipunbatra/Downloads/wikienergy-2.h5"
+else:
+    ds_path = sys.argv[1]
+
 
 ds = DataSet(ds_path)
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
