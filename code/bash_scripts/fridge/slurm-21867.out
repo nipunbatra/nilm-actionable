@@ -1,0 +1,4 @@
+/var/spool/slurmd/job21867/slurm_script: line 4: SBATCH: command not found
+/var/spool/slurmd/job21867/slurm_script: line 5: SBATCH: command not found
+/net/if6/nb2cz/git/nilm-actionable/code/bash_scripts/fridge
+3 3
