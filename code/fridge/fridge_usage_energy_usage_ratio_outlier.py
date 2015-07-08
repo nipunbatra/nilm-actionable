@@ -1,7 +1,8 @@
-import pandas as pd
 import sys
+
+import pandas as pd
+
 sys.path.append("../common")
-import matplotlib.pyplot as plt
 
 from common_functions import latexify, format_axes
 
@@ -17,10 +18,8 @@ XY = df[["usage proportion","usage_percentage" ]].values
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.font_manager
 from scipy import stats
 
-from sklearn import svm
 from sklearn.covariance import EllipticEnvelope
 
 # Example settings
@@ -87,7 +86,10 @@ plt.xlim((xlims[0]-0.1, xlims[1]+0.1))
 plt.tight_layout()
 #plt.savefig("../../figures/fridge/usage_energy_ratio.png")
 #plt.savefig("../../figures/fridge/usage_energy_ratio.pdf")
-plt.show()
+#plt.show()
+
+e = df[df.usage_percentage.isin(XY[-n_outliers:, 1])]
+feedback_homes = e[e.usage_percentage>df.usage_percentage.median()]["home"].values
 
 """
 plt.clf()
