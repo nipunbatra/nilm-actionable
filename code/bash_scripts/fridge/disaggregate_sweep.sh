@@ -15,9 +15,9 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
         CMD='python ../../fridge/test.py '$N_STATES' '$K''
         echo $CMD
 
-        rm ${SLURM_SCRIPT}
+        #rm ${SLURM_SCRIPT}
         echo "#!/bin/sh" > ${SLURM_SCRIPT}
-        echo $pwd > ${SLURM_SCRIPT}
+        #echo $pwd > ${SLURM_SCRIPT}
         echo '#SBATCH --time=4-00:0:00' >> ${SLURM_SCRIPT}
         echo '#SBATCH --mem=4' >> ${SLURM_SCRIPT}
         echo '#SBATCH -o "./'${OFILE}'"' >> ${SLURM_SCRIPT}
