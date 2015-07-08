@@ -8,7 +8,11 @@ from numba import autojit, jit
 
 warnings.filterwarnings("ignore")
 
-ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
+import sys
+
+ds_path = sys.argv[1]
+
+ds = DataSet(ds_path)
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
 
 Wm_to_kwh = 1.66666667 * 1e-5
