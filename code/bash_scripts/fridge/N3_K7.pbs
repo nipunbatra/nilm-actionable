@@ -1,6 +1,0 @@
-#!/bin/sh
-#SBATCH --time=4-00:0:00
-#SBATCH --mem=4
-SBATCH -o "./../../../results/fridge/sweep_results/N3_K7.out"
-SBATCH -e "./../../../results/fridge/sweep_results/N3_K7.err"
-python ../../fridge/test.py 3 7

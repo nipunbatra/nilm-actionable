@@ -20,8 +20,8 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
         #echo $pwd > ${SLURM_SCRIPT}
         echo '#SBATCH --time=4-00:0:00' >> ${SLURM_SCRIPT}
         echo '#SBATCH --mem=4' >> ${SLURM_SCRIPT}
-        echo 'SBATCH -o "./'${OFILE}'"' >> ${SLURM_SCRIPT}
-        echo 'SBATCH -e "./'${EFILE}'"' >> ${SLURM_SCRIPT}
+        echo '#SBATCH -o "./'${OFILE}'"' >> ${SLURM_SCRIPT}
+        echo '#SBATCH -e "./'${EFILE}'"' >> ${SLURM_SCRIPT}
         #echo 'cd $SLURM_SUBMIT_DIR' >> ${SLURM_SCRIPT}
         echo ${CMD} >> ${SLURM_SCRIPT}
 
