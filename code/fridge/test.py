@@ -7,5 +7,5 @@ a, b = sys.argv[1], sys.argv[2]
 
 import pandas as pd
 
-df = pd.HDFStore(a)
+df = pd.HDFStore(a)['/1']
 print df.head()

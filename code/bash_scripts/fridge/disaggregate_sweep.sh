@@ -9,8 +9,8 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
         do
         for((TRAIN=10;TRAIN<100;TRAIN+=10))
             do
-            OFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}.out
-            EFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}.err
+            OFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}.out
+            EFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}.err
 
             SLURM_SCRIPT=N${N_STATES}_K${K}.pbs
             CMD='python ../../fridge/test.py ~/wikienergy-2.h5 '$N_STATES' '$K' '$TRAIN''
