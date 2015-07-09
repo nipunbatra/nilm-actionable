@@ -8,7 +8,7 @@ import numpy as np
 warnings.filterwarnings("ignore")
 
 import os
-ds_path = os.path.abspath("~/wikienergy-2.h5")
+ds_path = os.path.expanduser("~/wikienergy-2.h5")
 ds = DataSet(ds_path)
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
 
