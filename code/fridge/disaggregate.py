@@ -81,6 +81,7 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
         if not os.path.exists(clf_name):
             os.makedirs(clf_name)
 
+    print ("../../bash_runs/%s" % (out_file_name))
     if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
         os.makedirs("../../bash_runs/%s" %(out_file_name))
 
