@@ -27,7 +27,9 @@ else:
 
 num_states = int(sys.argv[2])
 K = int(sys.argv[3])
-train_fraction = int(sys.argv[4]) / 100
+train_fraction = int(sys.argv[4]) / 100.0
+
+print("Train fraction is ", train_fraction)
 
 out_file_name = "N%d_K%d_T%d" % (num_states, K, train_fraction)
 
