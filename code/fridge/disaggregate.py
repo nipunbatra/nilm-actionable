@@ -48,6 +48,7 @@ building_ids_to_consider = fridge_id_building_id_ser[fridge_ids_to_consider]
 
 out = {}
 for f_id, b_id in building_ids_to_consider.head(2).iteritems():
+    print("Doing for ids %d and %d" %(f_id, b_id))
     start = time.time()
     out[f_id] = {}
     # Need to put it here to ensure that we have a new instance of the algorithm each time
@@ -77,6 +78,7 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
     top_k_train_elec = train_elec.submeters().select_top_k(k=K)
 
     # Creating a folder for each classifier
+    print clf_name
     for clf_name in cls_dict.keys():
         if not os.path.exists(clf_name):
             os.makedirs(clf_name)
@@ -127,5 +129,7 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
             end = time.time()
             time_taken = int(end - start)
             print "Id: %d took %d seconds" % (f_id, time_taken)
-    except:
-        pass
+    except Exception, e:
+        import traceback
+        traceback.print_exc()
+        print e
