@@ -7,7 +7,7 @@ import numpy as np
 
 warnings.filterwarnings("ignore")
 
-ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
+ds = DataSet("~/wikienergy-2.h5")
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
 
 Wm_to_kwh = 1.66666667 * 1e-5
