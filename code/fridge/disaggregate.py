@@ -79,13 +79,15 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
 
     # Creating a folder for each classifier
     #print clf_name
-    for clf_name in cls_dict.keys():
-        if not os.path.exists(clf_name):
-            os.makedirs(clf_name)
+
 
     print ("../../bash_runs/%s" % (out_file_name))
     if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
         os.makedirs("../../bash_runs/%s" %(out_file_name))
+
+    for clf_name in cls_dict.keys():
+        if not os.path.exists("../../bash_runs/%s/%s" %(out_file_name, clf_name)):
+            os.makedirs("../../bash_runs/%s/%s" %(out_file_name, clf_name))
 
     # Add this fridge to training if this fridge is not in top-k
     if fridge_elec_train not in top_k_train_elec.meters:
