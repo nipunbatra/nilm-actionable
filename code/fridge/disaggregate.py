@@ -17,13 +17,14 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import sys
-
+import shelve
 sys.path.append("../../code/fridge/")
 
 if (len(sys.argv) < 2):
     ds_path = "/Users/nipunbatra/Downloads/wikienergy-2.h5"
 else:
     ds_path = sys.argv[1]
+top_k_dict = shelve.open("../../../data/fridge/top_k.pkl")
 
 num_states = int(sys.argv[2])
 K = int(sys.argv[3])
@@ -75,7 +76,9 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
 
 
     # Finding top N appliances
-    top_k_train_elec = train_elec.submeters().select_top_k(k=K)
+    top_k_train_list = top_k_dict[str(f_id)][:K]
+    top_k_train_elec = MeterGroup([m for m in ds.buildings[b_id].elec.meters if m.instance() in top_k_train_list])
+
 
     # Creating a folder for each classifier
     #print clf_name
