@@ -122,9 +122,9 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
                 fridge_df_test = fridge_elec_test.load().next()[('power', 'active')]
                 out[f_id]["GT"] = fridge_df_test
                 out_df = pd.DataFrame(out[f_id])
-                if not os.path.exists("../../bash_runs/output/"):
-                    os.makedirs("../../bash_runs/output/")
-                out_df.to_hdf("../../bash_runs/output/%d.h5" % f_id, "disag")
+                if not os.path.exists("../../bash_runs/%s/output/" %(out_file_name)):
+                    os.makedirs("../../bash_runs/%s/output/" %(out_file_name))
+                out_df.to_hdf("../../bash_runs/%s/output/%d.h5" % (out_file_name,f_id), "disag")
 
             else:
                 print("Skipping")
