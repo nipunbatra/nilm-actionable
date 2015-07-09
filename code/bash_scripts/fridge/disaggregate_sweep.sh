@@ -3,11 +3,11 @@
 
 source ~/.bashrc
 
-for ((N_STATES=2; N_STATES<5; N_STATES+=1))
+for ((N_STATES=2; N_STATES<3; N_STATES+=1))
     do
-    for ((K=2;K<8;K+=1))
+    for ((K=2;K<3;K+=1))
         do
-        for((TRAIN=10;TRAIN<100;TRAIN+=10))
+        for((TRAIN=10;TRAIN<30;TRAIN+=10))
             do
             OFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}.out
             EFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}.err
