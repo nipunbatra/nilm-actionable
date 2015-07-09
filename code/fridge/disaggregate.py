@@ -78,7 +78,7 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
     top_k_train_elec = train_elec.submeters().select_top_k(k=K)
 
     # Creating a folder for each classifier
-    print clf_name
+    #print clf_name
     for clf_name in cls_dict.keys():
         if not os.path.exists(clf_name):
             os.makedirs(clf_name)
