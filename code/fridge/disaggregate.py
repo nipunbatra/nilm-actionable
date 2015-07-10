@@ -6,6 +6,8 @@ import pandas as pd
 import nilmtk
 from nilmtk import DataSet, MeterGroup, HDFDataStore
 from nilmtk.disaggregate import CombinatorialOptimisation, FHMM, Hart85
+from nilmtk.feature_detectors.steady_states import find_steady_states_transients, find_steady_states
+
 
 warnings.filterwarnings("ignore")
 
@@ -47,8 +49,15 @@ fridge_ids_to_consider = compressor_powers.keys()
 
 building_ids_to_consider = fridge_id_building_id_ser[fridge_ids_to_consider]
 
+def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
+    for elec_name in list_of_elecs:
+        appl = elec_name.appliances[0]
+        if (appl.identifier.type, appl.identifier.instance) == (appliance_name, appliance_instance):
+            return elec_name
+
+
 out = {}
-for f_id, b_id in building_ids_to_consider.head(3).iteritems():
+for f_id, b_id in building_ids_to_consider.head(1).iteritems():
     print("*"*80)
     print("Starting for ids %d and %d" % (f_id, b_id))
     print("*"*80)
@@ -114,29 +123,50 @@ for f_id, b_id in building_ids_to_consider.head(3).iteritems():
                     fridge_instance = fridges.meters[f_id].appliances[0].identifier.instance
                     fridge_identifier_tuple = ('fridge', fridge_instance)
 
-                output = HDFDataStore(ds_filename_total, 'w')
+
                 print("-"*80)
                 print("Disaggregating")
                 print("-"*80)
-                clf.disaggregate(test_mains, output)
-                output.close()
+                test_mains_df = test_mains.load().next()
+                if clf_name=="Hart":
+                    [_, transients] = find_steady_states(test_mains_df, clf.cols,
+                                                         clf.state_threshold, clf.noise_level)
+                    pred_df_fridge = clf.disaggregate_chunk(test_mains_df,
+                                                               {}, transients)[[fridge_num]]
 
-                # Now, need to grab the DF
-                ds_pred = DataSet(ds_filename_total)
-                out[f_id][clf_name] = ds_pred.buildings[b_id].elec[fridge_identifier_tuple].load().next()[
-                    ('power', 'active')]
-                fridge_df_test = fridge_elec_test.load().next()[('power', 'active')]
-                out[f_id]["GT"] = fridge_df_test
-                out_df = pd.DataFrame(out[f_id])
-                if not os.path.exists("../../bash_runs/%s/output/" % (out_file_name)):
-                    os.makedirs("../../bash_runs/%s/output/" % (out_file_name))
-                out_df.to_hdf("../../bash_runs/%s/output/%d.h5" % (out_file_name, f_id), "disag")
+                    pred_ser_fridge = pred_df_fridge.squeeze()
+                    pred_ser_fridge.name="Hart"
+                    out[f_id][clf_name]=pred_ser_fridge
+                elif clf_name=="CO":
+                    pred_df = clf.disaggregate_chunk(test_mains_df)
+                    pred_df.columns = [clf.model[i]['training_metadata'] for i in pred_df.columns]
+                    pred_df_fridge = pred_df[[find_specific_appliance('fridge',
+                                                                         fridge_instance,
+                                                                         pred_df.columns.tolist())]]
+                    pred_ser_fridge = pred_df_fridge.squeeze()
+                    pred_ser_fridge.name="CO"
+                    out[f_id][clf_name]=pred_ser_fridge
+                else:
+                    pred_df = clf.disaggregate_chunk(test_mains_df)
+                    pred_df_fridge = pred_df[[find_specific_appliance('fridge',
+                                                                         fridge_instance,
+                                                                         pred_df.columns.tolist())]]
+                    pred_ser_fridge = pred_df_fridge.squeeze()
+                    pred_ser_fridge.name="FHMM"
+                    out[f_id][clf_name]=pred_ser_fridge
 
-            else:
-                print("Skipping")
-            end = time.time()
-            time_taken = int(end - start)
-            print "Id: %d took %d seconds" % (f_id, time_taken)
+        fridge_df_test = fridge_elec_test.load().next()[('power', 'active')]
+        fridge_df_test.name="GT"
+        out[f_id]["GT"] = fridge_df_test
+        out_df = pd.DataFrame(out[f_id])
+        if not os.path.exists("../../bash_runs/%s/output/" % (out_file_name)):
+            os.makedirs("../../bash_runs/%s/output/" % (out_file_name))
+            out_df.to_hdf("../../bash_runs/%s/output/%d.h5" % (out_file_name, f_id), "disag")
+        else:
+            print("Skipping")
+        end = time.time()
+        time_taken = int(end - start)
+        print "Id: %d took %d seconds" % (f_id, time_taken)
     except Exception, e:
         import traceback
 
