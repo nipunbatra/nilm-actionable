@@ -1,4 +1,9 @@
 iidea/
 .idea/
 *.pyc
-#*.h5
+*.h5
+*.err
+*.out
+*.dat
+*.bak
+*.pbs
