@@ -95,9 +95,6 @@ for f_id, b_id in building_ids_to_consider.iteritems():
     if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
         os.makedirs("../../bash_runs/%s" % (out_file_name))
 
-    for clf_name in cls_dict.keys():
-        if not os.path.exists("../../bash_runs/%s/%s" % (out_file_name, clf_name)):
-            os.makedirs("../../bash_runs/%s/%s" % (out_file_name, clf_name))
 
     # Add this fridge to training if this fridge is not in top-k
     if fridge_elec_train not in top_k_train_elec.meters:
@@ -159,11 +156,9 @@ for f_id, b_id in building_ids_to_consider.iteritems():
         fridge_df_test.name="GT"
         out[f_id]["GT"] = fridge_df_test
         out_df = pd.DataFrame(out[f_id])
-        if not os.path.exists("../../bash_runs/%s/output/" % (out_file_name)):
-            os.makedirs("../../bash_runs/%s/output/" % (out_file_name))
-            out_df.to_hdf("../../bash_runs/%s/output/%d.h5" % (out_file_name, f_id), "disag")
-        else:
-            print("Skipping")
+        print("Writing for fridge id: %d" %f_id)
+        out_df.to_hdf("../../bash_runs/%s/%d.h5" % (out_file_name, f_id), "disag")
+
         end = time.time()
         time_taken = int(end - start)
         print "Id: %d took %d seconds" % (f_id, time_taken)
