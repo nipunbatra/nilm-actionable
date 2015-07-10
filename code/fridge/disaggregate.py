@@ -57,7 +57,7 @@ def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
 
 
 out = {}
-for f_id, b_id in building_ids_to_consider.head(1).iteritems():
+for f_id, b_id in building_ids_to_consider.head(3).iteritems():
     print("*"*80)
     print("Starting for ids %d and %d" % (f_id, b_id))
     print("*"*80)
