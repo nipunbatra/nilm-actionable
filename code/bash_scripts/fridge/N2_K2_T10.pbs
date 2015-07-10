@@ -1,6 +1,0 @@
-#!/bin/sh
-#SBATCH --time=02:0:00
-#SBATCH --mem=16
-#SBATCH -o "./../../../results/fridge/sweep_results/N2_K2_T10.out"
-#SBATCH -e "./../../../results/fridge/sweep_results/N2_K2_T10.err"
-python ../../fridge/disaggregate.py ~/wikienergy-2.h5 2 2 10
