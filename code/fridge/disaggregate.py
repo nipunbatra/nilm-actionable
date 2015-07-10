@@ -1,38 +1,38 @@
-import numpy as np
-import pandas as pd
-from os.path import join
 import os
 import time
-from pylab import rcParams
-import matplotlib.pyplot as plt
-
-import nilmtk
-from nilmtk import DataSet, TimeFrame, MeterGroup, HDFDataStore
-from nilmtk.disaggregate import CombinatorialOptimisation, FHMM, Hart85
-from nilmtk.utils import print_dict
-from nilmtk.metrics import f1_score
-
 import warnings
+
+import pandas as pd
+import nilmtk
+from nilmtk import DataSet, MeterGroup, HDFDataStore
+from nilmtk.disaggregate import CombinatorialOptimisation, FHMM, Hart85
 
 warnings.filterwarnings("ignore")
 
 import sys
-import shelve
+import json
+
 sys.path.append("../../code/fridge/")
 
 if (len(sys.argv) < 2):
     ds_path = "/Users/nipunbatra/Downloads/wikienergy-2.h5"
 else:
     ds_path = sys.argv[1]
-top_k_dict = shelve.open("../../../data/fridge/top_k.pkl")
+with open('../../../data/fridge/top_k.json', 'r') as fp:
+    top_k_dict = json.load(fp)
 
 num_states = int(sys.argv[2])
 K = int(sys.argv[3])
 train_fraction = int(sys.argv[4]) / 100.0
 
-print("Train fraction is ", train_fraction)
+print("*"*80)
+print("Arguments")
 
-out_file_name = "N%d_K%d_T%d" % (num_states, K, train_fraction)
+print("NUmber states", num_states)
+print("Train fraction is ", train_fraction)
+print("Top k", K)
+
+out_file_name = "N%d_K%d_T%s" % (num_states, K, sys.argv[4])
 
 ds = DataSet(ds_path)
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
@@ -41,15 +41,17 @@ fridges_id_building_id = {i: fridges.meters[i].building() for i in range(len(fri
 
 fridge_id_building_id_ser = pd.Series(fridges_id_building_id)
 
-from fridge_compressor_durations_optimised_jul_7 import compressor_powers, defrost_power
+from fridge_compressor_durations_optimised_jul_7 import compressor_powers
 
 fridge_ids_to_consider = compressor_powers.keys()
 
 building_ids_to_consider = fridge_id_building_id_ser[fridge_ids_to_consider]
 
 out = {}
-for f_id, b_id in building_ids_to_consider.head(2).iteritems():
-    print("Doing for ids %d and %d" %(f_id, b_id))
+for f_id, b_id in building_ids_to_consider.head(3).iteritems():
+    print("*"*80)
+    print("Starting for ids %d and %d" % (f_id, b_id))
+    print("*"*80)
     start = time.time()
     out[f_id] = {}
     # Need to put it here to ensure that we have a new instance of the algorithm each time
@@ -77,20 +79,16 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
 
     # Finding top N appliances
     top_k_train_list = top_k_dict[str(f_id)][:K]
+    print("Top %d list is " %(K), top_k_train_list)
     top_k_train_elec = MeterGroup([m for m in ds.buildings[b_id].elec.meters if m.instance() in top_k_train_list])
-
-
-    # Creating a folder for each classifier
-    #print clf_name
-
 
     print ("../../bash_runs/%s" % (out_file_name))
     if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
-        os.makedirs("../../bash_runs/%s" %(out_file_name))
+        os.makedirs("../../bash_runs/%s" % (out_file_name))
 
     for clf_name in cls_dict.keys():
-        if not os.path.exists("../../bash_runs/%s/%s" %(out_file_name, clf_name)):
-            os.makedirs("../../bash_runs/%s/%s" %(out_file_name, clf_name))
+        if not os.path.exists("../../bash_runs/%s/%s" % (out_file_name, clf_name)):
+            os.makedirs("../../bash_runs/%s/%s" % (out_file_name, clf_name))
 
     # Add this fridge to training if this fridge is not in top-k
     if fridge_elec_train not in top_k_train_elec.meters:
@@ -98,8 +96,10 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
 
     try:
         for clf_name, clf in cls_dict.iteritems():
+            print("-"*80)
+            print("Training on %s" %clf_name)
             disag_filename = '%s/%d.h5' % (clf_name, f_id)
-            ds_filename_total="../../bash_runs/%s/%s" % (out_file_name, disag_filename)
+            ds_filename_total = "../../bash_runs/%s/%s" % (out_file_name, disag_filename)
             if not os.path.exists(ds_filename_total):
                 # We've already learnt the model, move ahead!
                 if clf_name == "Hart":
@@ -115,6 +115,9 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
                     fridge_identifier_tuple = ('fridge', fridge_instance)
 
                 output = HDFDataStore(ds_filename_total, 'w')
+                print("-"*80)
+                print("Disaggregating")
+                print("-"*80)
                 clf.disaggregate(test_mains, output)
                 output.close()
 
@@ -125,9 +128,9 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
                 fridge_df_test = fridge_elec_test.load().next()[('power', 'active')]
                 out[f_id]["GT"] = fridge_df_test
                 out_df = pd.DataFrame(out[f_id])
-                if not os.path.exists("../../bash_runs/%s/output/" %(out_file_name)):
-                    os.makedirs("../../bash_runs/%s/output/" %(out_file_name))
-                out_df.to_hdf("../../bash_runs/%s/output/%d.h5" % (out_file_name,f_id), "disag")
+                if not os.path.exists("../../bash_runs/%s/output/" % (out_file_name)):
+                    os.makedirs("../../bash_runs/%s/output/" % (out_file_name))
+                out_df.to_hdf("../../bash_runs/%s/output/%d.h5" % (out_file_name, f_id), "disag")
 
             else:
                 print("Skipping")
@@ -136,5 +139,6 @@ for f_id, b_id in building_ids_to_consider.head(2).iteritems():
             print "Id: %d took %d seconds" % (f_id, time_taken)
     except Exception, e:
         import traceback
+
         traceback.print_exc()
         print e

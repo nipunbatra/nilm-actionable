@@ -1,23 +1,14 @@
-import numpy as np
-import pandas as pd
-from os.path import join
-import os
 import time
-from pylab import rcParams
-import matplotlib.pyplot as plt
-
-import nilmtk
-from nilmtk import DataSet, TimeFrame, MeterGroup, HDFDataStore
-from nilmtk.disaggregate import CombinatorialOptimisation, FHMM, Hart85
-from nilmtk.utils import print_dict
-from nilmtk.metrics import f1_score
-
 import warnings
+
+import pandas as pd
+import nilmtk
+from nilmtk import DataSet
 
 warnings.filterwarnings("ignore")
 
 import sys
-import shelve
+import json
 
 sys.path.append("../../code/fridge/")
 
@@ -26,7 +17,7 @@ if (len(sys.argv) < 2):
 else:
     ds_path = sys.argv[1]
 
-d = shelve.open("../../data/fridge/top_k.pkl")
+d = {}
 train_fraction = 0.5
 
 print("Train fraction is ", train_fraction)
@@ -38,7 +29,7 @@ fridges_id_building_id = {i: fridges.meters[i].building() for i in range(len(fri
 
 fridge_id_building_id_ser = pd.Series(fridges_id_building_id)
 
-from fridge_compressor_durations_optimised_jul_7 import compressor_powers, defrost_power
+from fridge_compressor_durations_optimised_jul_7 import compressor_powers
 
 fridge_ids_to_consider = compressor_powers.keys()
 
@@ -47,7 +38,6 @@ building_ids_to_consider = fridge_id_building_id_ser[fridge_ids_to_consider]
 for f_id, b_id in building_ids_to_consider.iteritems():
     print("Doing for ids %d and %d" % (f_id, b_id))
     start = time.time()
-
 
     elec = ds.buildings[b_id].elec
     mains = elec.mains()
@@ -67,5 +57,7 @@ for f_id, b_id in building_ids_to_consider.iteritems():
     fridge_elec_train = train_elec[('fridge', fridge_instance)]
     # Finding top N appliances
     top_k_train_elec = train_elec.submeters().select_top_k(k=10)
-    d[str(f_id)] = [m.instance() for m in top_k_train_elec.meters]
-d.close()
+    d[f_id] = [m.instance() for m in top_k_train_elec.meters]
+
+with open('../../../data/fridge/top_k.json', 'w') as fp:
+    json.dump(d, fp)
