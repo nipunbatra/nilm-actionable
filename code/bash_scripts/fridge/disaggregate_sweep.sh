@@ -19,7 +19,7 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
             #rm ${SLURM_SCRIPT}
             echo "#!/bin/sh" > ${SLURM_SCRIPT}
             #echo $pwd > ${SLURM_SCRIPT}
-            echo '#SBATCH --time=02:0:00' >> ${SLURM_SCRIPT}
+            echo '#SBATCH --time=2-02:0:00' >> ${SLURM_SCRIPT}
             echo '#SBATCH --mem=16' >> ${SLURM_SCRIPT}
             echo '#SBATCH -o "./'${OFILE}'"' >> ${SLURM_SCRIPT}
             echo '#SBATCH -e "./'${EFILE}'"' >> ${SLURM_SCRIPT}
