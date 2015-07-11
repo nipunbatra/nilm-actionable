@@ -66,19 +66,19 @@ facelec_test = test_elec[('fridge', 1)]
 num_states_dict = {ac_elec_train: num_states}
 
 
-    # Finding top N appliances
-    top_k_train_list = top_k_dict[str(f_id)][:K]
-    print("Top %d list is " %(K), top_k_train_list)
-    top_k_train_elec = MeterGroup([m for m in ds.buildings[b_id].elec.meters if m.instance() in top_k_train_list])
+# Finding top N appliances
+top_k_train_list = top_k_dict[str(f_id)][:K]
+print("Top %d list is " %(K), top_k_train_list)
+top_k_train_elec = MeterGroup([m for m in ds.buildings[b_id].elec.meters if m.instance() in top_k_train_list])
 
-    print ("../../bash_runs/%s" % (out_file_name))
-    if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
-        os.makedirs("../../bash_runs/%s" % (out_file_name))
+print ("../../bash_runs/%s" % (out_file_name))
+if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
+    os.makedirs("../../bash_runs/%s" % (out_file_name))
 
 
-    # Add this fridge to training if this fridge is not in top-k
-    if fridge_elec_train not in top_k_train_elec.meters:
-        top_k_train_elec.meters.append(fridge_elec_train)
+# Add this fridge to training if this fridge is not in top-k
+if ac_elec_train not in top_k_train_elec.meters:
+    top_k_train_elec.meters.append(ac_elec_train)
 
     try:
         for clf_name, clf in cls_dict.iteritems():
@@ -89,7 +89,7 @@ num_states_dict = {ac_elec_train: num_states}
             if not os.path.exists(ds_filename_total):
                 # We've already learnt the model, move ahead!
                 if clf_name == "Hart":
-                    fridge_df_train = fridge_elec_train.load().next()[('power', 'active')]
+                    fridge_df_train = ac_elec_train.load().next()[('power', 'active')]
                     fridge_power = fridge_df_train[fridge_df_train > 20]
                     clf.train(train_elec.mains())
                     d = (clf.centroids - fridge_power).abs()
