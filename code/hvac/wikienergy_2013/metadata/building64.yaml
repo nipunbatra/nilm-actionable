@@ -1,0 +1,15 @@
+appliances:
+- instance: 1
+  meters: [1]
+  original_name: drye1
+  type: spin dryer
+- instance: 1
+  meters: [3]
+  original_name: air1
+  type: air conditioner
+elec_meters:
+  1: {device_model: eGauge, submeter_of: 0}
+  2: {device_model: eGauge, site_meter: true}
+  3: {device_model: eGauge, submeter_of: 0}
+instance: 64
+original_name: 7731

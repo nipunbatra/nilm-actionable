@@ -1,0 +1,125 @@
+appliances:
+- instance: 1
+  meters: [1]
+  original_name: lights_plugs2
+  type: light
+- instance: 2
+  meters: [2]
+  original_name: lights_plugs3
+  type: light
+- instance: 1
+  meters: [3]
+  original_name: dishwasher1
+  type: dish washer
+- instance: 3
+  meters: [4]
+  original_name: lights_plugs1
+  type: light
+- instance: 1
+  meters: [5]
+  original_name: bedroom1
+  room: bedroom
+  type: sockets
+- instance: 2
+  meters: [6]
+  original_name: bedroom2
+  room: bedroom
+  type: sockets
+- instance: 3
+  meters: [7]
+  original_name: bedroom3
+  room: bedroom
+  type: sockets
+- instance: 1
+  meters: [8]
+  original_name: furnace2
+  type: electric furnace
+- instance: 4
+  meters: [9]
+  original_name: garage1
+  room: dining room
+  type: sockets
+- instance: 1
+  meters: [10]
+  original_name: disposal1
+  type: waste disposal unit
+- instance: 5
+  meters: [11]
+  original_name: diningroom1
+  room: dining room
+  type: sockets
+- instance: 2
+  meters: [13]
+  original_name: furnace1
+  type: electric furnace
+- instance: 6
+  meters: [14]
+  original_name: livingroom1
+  room: living room
+  type: sockets
+- instance: 7
+  meters: [15]
+  original_name: kitchen1
+  room: kitchen
+  type: sockets
+- instance: 1
+  meters: [16]
+  original_name: refrigerator1
+  type: fridge
+- instance: 1
+  meters: [17]
+  original_name: car1
+  type: electric vehicle
+- instance: 8
+  meters: [18]
+  original_name: bathroom2
+  room: bathroom
+  type: sockets
+- instance: 9
+  meters: [19]
+  original_name: bathroom1
+  room: bathroom
+  type: sockets
+- instance: 10
+  meters: [20]
+  original_name: kitchenapp2
+  room: kitchen
+  type: sockets
+- instance: 1
+  meters: [21]
+  original_name: clotheswasher_dryg1
+  type: washer dryer
+- instance: 1
+  meters: [22]
+  original_name: air1
+  type: air conditioner
+- instance: 2
+  meters: [23]
+  original_name: air2
+  type: air conditioner
+elec_meters:
+  1: {device_model: eGauge, submeter_of: 0}
+  2: {device_model: eGauge, submeter_of: 0}
+  3: {device_model: eGauge, submeter_of: 0}
+  4: {device_model: eGauge, submeter_of: 0}
+  5: {device_model: eGauge, submeter_of: 0}
+  6: {device_model: eGauge, submeter_of: 0}
+  7: {device_model: eGauge, submeter_of: 0}
+  8: {device_model: eGauge, submeter_of: 0}
+  9: {device_model: eGauge, submeter_of: 0}
+  10: {device_model: eGauge, submeter_of: 0}
+  11: {device_model: eGauge, submeter_of: 0}
+  12: {device_model: eGauge, site_meter: true}
+  13: {device_model: eGauge, submeter_of: 0}
+  14: {device_model: eGauge, submeter_of: 0}
+  15: {device_model: eGauge, submeter_of: 0}
+  16: {device_model: eGauge, submeter_of: 0}
+  17: {device_model: eGauge, submeter_of: 0}
+  18: {device_model: eGauge, submeter_of: 0}
+  19: {device_model: eGauge, submeter_of: 0}
+  20: {device_model: eGauge, submeter_of: 0}
+  21: {device_model: eGauge, submeter_of: 0}
+  22: {device_model: eGauge, submeter_of: 0}
+  23: {device_model: eGauge, submeter_of: 0}
+instance: 58
+original_name: 6910
