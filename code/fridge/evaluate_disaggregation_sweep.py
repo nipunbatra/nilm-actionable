@@ -64,7 +64,7 @@ for dir in subdirs:
     homes = glob.glob(dir_full_path + "/*.h5")
     for home in homes:
         home_full_path = os.path.join(os.path.join(RESULTS_PATH, dir), home)
-        df = pd.HDFStore(home)['/disag']
+        df = pd.HDFStore(home)['/disag'].dropna()
         home_name = home.split("/")[-1].split(".")[0]
         out[num_states][K][train_fraction][home_name] = {}
         for metric_name, metric_func in metrics.iteritems():
