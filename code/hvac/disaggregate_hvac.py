@@ -16,10 +16,10 @@ import json
 
 
 if (len(sys.argv) < 2):
-    ds_path = "/Users/nipunbatra/Downloads/wikienergy-2.h5"
+    ds_path = "/Users/nipunbatra/wikienergy2013.h5"
 else:
     ds_path = sys.argv[1]
-with open('../../../data/fridge/top_k.json', 'r') as fp:
+with open('../../../data/hvac/top_k_2013.json', 'r') as fp:
     top_k_dict = json.load(fp)
 
 num_states = int(sys.argv[2])
@@ -36,17 +36,6 @@ print("Top k", K)
 out_file_name = "N%d_K%d_T%s" % (num_states, K, sys.argv[4])
 
 ds = DataSet(ds_path)
-fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
-
-fridges_id_building_id = {i: fridges.meters[i].building() for i in range(len(fridges.meters))}
-
-fridge_id_building_id_ser = pd.Series(fridges_id_building_id)
-
-from fridge_compressor_durations_optimised_jul_7 import compressor_powers
-
-fridge_ids_to_consider = compressor_powers.keys()
-
-building_ids_to_consider = fridge_id_building_id_ser[fridge_ids_to_consider]
 
 def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
     for elec_name in list_of_elecs:
@@ -55,34 +44,26 @@ def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
             return elec_name
 
 
-out = {}
-for f_id, b_id in building_ids_to_consider.iteritems():
-    print("*"*80)
-    print("Starting for ids %d and %d" % (f_id, b_id))
-    print("*"*80)
-    start = time.time()
-    out[f_id] = {}
-    # Need to put it here to ensure that we have a new instance of the algorithm each time
-    cls_dict = {"CO": CombinatorialOptimisation(), "FHMM": FHMM(), "Hart": Hart85()}
-    elec = ds.buildings[b_id].elec
-    mains = elec.mains()
-    fridge_instance = fridges.meters[f_id].appliances[0].identifier.instance
-    # Dividing train, test
 
-    train = DataSet(ds_path)
-    test = DataSet(ds_path)
-    split_point = elec.train_test_split(train_fraction=train_fraction).date()
-    train.set_window(end=split_point)
-    test.set_window(start=split_point)
-    train_elec = train.buildings[b_id].elec
-    test_elec = test.buildings[b_id].elec
-    test_mains = test_elec.mains()
+b_id = 2
+cls_dict = {"CO": CombinatorialOptimisation(), "FHMM": FHMM(), "Hart": Hart85()}
+elec = ds.buildings[b_id].elec
+mains = elec.mains()
 
-    # Fridge elec
-    fridge_elec_train = train_elec[('fridge', fridge_instance)]
-    fridge_elec_test = test_elec[('fridge', fridge_instance)]
+train = DataSet(ds_path)
+test = DataSet(ds_path)
+split_point = elec.train_test_split(train_fraction=train_fraction).date()
+train.set_window(end=split_point)
+test.set_window(start=split_point)
+train_elec = train.buildings[b_id].elec
+test_elec = test.buildings[b_id].elec
+test_mains = test_elec.mains()
 
-    num_states_dict = {fridge_elec_train: num_states}
+    # AC elec
+ac_elec_train = train_elec[('fridge', 1)]
+facelec_test = test_elec[('fridge', 1)]
+
+num_states_dict = {ac_elec_train: num_states}
 
 
     # Finding top N appliances
