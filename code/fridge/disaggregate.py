@@ -112,7 +112,7 @@ for f_id, b_id in building_ids_to_consider.iteritems():
                     fridge_df_train = fridge_elec_train.load().next()[('power', 'active')]
                     fridge_power = fridge_df_train[fridge_df_train > 20]
                     clf.train(train_elec.mains())
-                    d = (clf.centroids - fridge_power).abs()
+                    d = (clf.centroids - fridge_power.mean()).abs()
                     fridge_num = d.sort(ascending=True).head(1).index.values[0]
                     fridge_identifier_tuple = ('unknown', fridge_num)
                 else:

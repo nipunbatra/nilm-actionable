@@ -71,9 +71,9 @@ top_k_train_list = top_k_dict[str(f_id)][:K]
 print("Top %d list is " %(K), top_k_train_list)
 top_k_train_elec = MeterGroup([m for m in ds.buildings[b_id].elec.meters if m.instance() in top_k_train_list])
 
-print ("../../bash_runs/%s" % (out_file_name))
-if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
-    os.makedirs("../../bash_runs/%s" % (out_file_name))
+#print ("../../bash_runs/%s" % (out_file_name))
+#if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
+#    os.makedirs("../../bash_runs/%s" % (out_file_name))
 
 
 # Add this fridge to training if this fridge is not in top-k
