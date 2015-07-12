@@ -1,17 +1,15 @@
 from __future__ import print_function, division
 import os
-import re
-import datetime
-import sys
-from os.path import join, isdir, isfile, dirname, abspath
+from os.path import join, isdir, dirname, abspath
+from inspect import currentframe, getfile, getsourcefile
+
 import pandas as pd
 import yaml
-import psycopg2 as db
-from nilmtk.measurement import measurement_columns
 from nilmtk.measurement import LEVEL_NAMES
 from nilmtk.datastore import Key
 from nilm_metadata import convert_yaml_to_hdf5
-from inspect import currentframe, getfile, getsourcefile
+
+script_path = os.path.dirname(os.path.realpath(__file__))
 
 feed_mapping = {
     'use': {},
@@ -87,14 +85,14 @@ feed_mapping = {
     'winecooler1': {'type': 'appliance'},
 }
 
-def _dataport_dataframe_to_hdf(df,
-                                 store,
-                                 nilmtk_building_id,
-                                 dataport_building_id):
 
+def _dataport_dataframe_to_hdf(df,
+                               store,
+                               nilmtk_building_id,
+                               dataport_building_id):
     local_dataframe = df
     # set timestamp as frame index
-    #local_dataframe = local_dataframe.set_index('localminute')
+    # local_dataframe = local_dataframe.set_index('localminute')
 
     feeds_dataframe = local_dataframe
 
@@ -104,7 +102,7 @@ def _dataport_dataframe_to_hdf(df,
     # building metadata
     building_metadata = {}
     building_metadata['instance'] = nilmtk_building_id
-    building_metadata['original_name'] = int(dataport_building_id) # use python int
+    building_metadata['original_name'] = int(dataport_building_id)  # use python int
     building_metadata['elec_meters'] = {}
     building_metadata['appliances'] = []
 
@@ -125,6 +123,9 @@ def _dataport_dataframe_to_hdf(df,
             feed_dataframe.columns.set_names(LEVEL_NAMES, inplace=True)
 
             key = Key(building=nilmtk_building_id, meter=meter_id)
+            print(key)
+            print(feed_dataframe.head())
+            print(column)
 
             # store dataframe
             store.put(str(key), feed_dataframe, format='table', append=True)
@@ -136,14 +137,14 @@ def _dataport_dataframe_to_hdf(df,
                                   'site_meter': True}
             else:
                 meter_metadata = {'device_model': 'eGauge',
-                                   'submeter_of': 0}
+                                  'submeter_of': 0}
             building_metadata['elec_meters'][meter_id] = meter_metadata
 
             # appliance metadata
             if column != 'use':
                 # original name and meter id
                 appliance_metadata = {'original_name': column,
-                                      'meters': [meter_id] }
+                                      'meters': [meter_id]}
                 # appliance type and room if available
                 appliance_metadata.update(feed_mapping[column])
                 # appliance instance number
@@ -162,8 +163,8 @@ def _dataport_dataframe_to_hdf(df,
     with open(yaml_full_filename, 'w') as outfile:
         outfile.write(yaml.dump(building_metadata))
 
-
     return 0
+
 
 def _get_module_directory():
     # Taken from http://stackoverflow.com/a/6098238/732596
@@ -178,9 +179,10 @@ def _get_module_directory():
     assert isdir(path_to_this_file), path_to_this_file + ' is not a directory'
     return path_to_this_file
 
-feed_ignore = ['gen', 'grid']
-WEATHER_HVAC_STORE = "../../../data/hvac/weather_hvac_2013.h5"
 
+feed_ignore = ['gen', 'grid']
+
+WEATHER_HVAC_STORE = os.path.join(script_path, '..', '..', '..', 'data/hvac/weather_hvac_2013.h5')
 
 store_total = pd.HDFStore("/Users/nipunbatra/Downloads/wiki-temp.h5")
 
@@ -190,12 +192,17 @@ useful_keys = [k[:-2] for k in store_useful.keys() if "X" in k]
 START, STOP = "2013-07-01", "2013-07-31"
 
 store_name = "/Users/nipunbatra/wikienergy-2013.h5"
-store_to_write = pd.HDFStore(store_name, "w")
+with pd.HDFStore(store_name, "w") as store_to_write:
 
-for nilmtk_id, dataid_str in enumerate(useful_keys):
-    print("Writing ",nilmtk_id)
-    df = store_total[dataid_str][START:STOP]
-    dataid = int(dataid_str[1:])
-    _dataport_dataframe_to_hdf(df, store_to_write, nilmtk_id+1, dataid)
-convert_yaml_to_hdf5(join(_get_module_directory(), 'metadata'),
+    for nilmtk_id, dataid_str in enumerate(useful_keys):
+
+        dataid = int(dataid_str[1:])
+
+        df = store_total[dataid_str][START:STOP]
+        if df['air1'].sum()>0:
+            print("Writing ", nilmtk_id, dataid)
+            _dataport_dataframe_to_hdf(df, store_to_write, nilmtk_id + 1, dataid)
+        else:
+            print ("Skipping", nilmtk_id, dataid)
+    convert_yaml_to_hdf5(join(_get_module_directory(), 'metadata'),
                          store_name)

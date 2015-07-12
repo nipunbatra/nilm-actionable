@@ -1,16 +1,15 @@
 import time
 import warnings
 
-import pandas as pd
-import nilmtk
 from nilmtk import DataSet
 
 warnings.filterwarnings("ignore")
 
 import sys
 import json
+import os
 
-sys.path.append("../../code/fridge/")
+script_path = os.path.dirname(os.path.realpath(__file__))
 
 if (len(sys.argv) < 2):
     ds_path = "/Users/nipunbatra/wikienergy-2013.h5"
@@ -23,10 +22,8 @@ train_fraction = 0.5
 print("Train fraction is ", train_fraction)
 
 ds = DataSet(ds_path)
-fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
 
 for b_id in ds.buildings.iterkeys():
-
 
     try:
         print("Doing for ids %d" % b_id)
@@ -53,7 +50,10 @@ for b_id in ds.buildings.iterkeys():
         d[b_id] = [m.instance() for m in top_k_train_elec.meters]
     except Exception, e:
         import traceback
+
         traceback.print_exc()
         print e
-with open('../../data/hvac/top_k_2013.json', 'w') as fp:
+
+json_store_path = os.path.join(script_path, "..", "..", 'data/hvac/top_k_2013.json')
+with open(json_store_path, 'w') as fp:
     json.dump(d, fp)
