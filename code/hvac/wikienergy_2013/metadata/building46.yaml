@@ -1,0 +1,64 @@
+appliances:
+- instance: 1
+  meters: [1]
+  original_name: lights_plugs2
+  type: light
+- instance: 2
+  meters: [2]
+  original_name: lights_plugs1
+  type: light
+- instance: 1
+  meters: [3]
+  original_name: bedroom1
+  room: bedroom
+  type: sockets
+- instance: 2
+  meters: [4]
+  original_name: bedroom2
+  room: bedroom
+  type: sockets
+- instance: 3
+  meters: [5]
+  original_name: garage1
+  room: dining room
+  type: sockets
+- instance: 1
+  meters: [7]
+  original_name: furnace1
+  type: electric furnace
+- instance: 4
+  meters: [8]
+  original_name: livingroom1
+  room: living room
+  type: sockets
+- instance: 1
+  meters: [9]
+  original_name: clotheswasher1
+  type: washing machine
+- instance: 1
+  meters: [10]
+  original_name: refrigerator1
+  type: fridge
+- instance: 1
+  meters: [11]
+  original_name: microwave1
+  type: microwave
+- instance: 1
+  meters: [12]
+  original_name: air1
+  type: air conditioner
+elec_meters:
+  1: {device_model: eGauge, submeter_of: 0}
+  2: {device_model: eGauge, submeter_of: 0}
+  3: {device_model: eGauge, submeter_of: 0}
+  4: {device_model: eGauge, submeter_of: 0}
+  5: {device_model: eGauge, submeter_of: 0}
+  6: {device_model: eGauge, site_meter: true}
+  7: {device_model: eGauge, submeter_of: 0}
+  8: {device_model: eGauge, submeter_of: 0}
+  9: {device_model: eGauge, submeter_of: 0}
+  10: {device_model: eGauge, submeter_of: 0}
+  11: {device_model: eGauge, submeter_of: 0}
+  12: {device_model: eGauge, submeter_of: 0}
+instance: 46
+original_name: 5371
