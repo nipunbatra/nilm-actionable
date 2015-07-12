@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import f1_score, mean_absolute_error
 
-RESULTS_PATH = "../../bash_runs"
+RESULTS_PATH = os.path.expanduser("~/git/nilm-actionable/code/bash_runs")
 
 import os
 import glob
