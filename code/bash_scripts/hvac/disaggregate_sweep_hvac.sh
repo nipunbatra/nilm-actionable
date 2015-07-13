@@ -5,7 +5,6 @@ source ~/.bashrc
 TRAIN=50
 declare -a algos=("FHMM" "CO" "Hart")
 num_algos=${#algos[@]}
-echo $num_algos
 for ((N_STATES=2; N_STATES<5; N_STATES+=1))
     do
     for ((K=3;K<7;K+=1))
@@ -13,7 +12,6 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
         for((ii=0;ii<$num_algos;ii+=1))
             do
             algo=${algos[$ii]}
-            echo $algo
             OFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".out
             EFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".err
 
@@ -31,8 +29,8 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
             #echo 'cd $SLURM_SUBMIT_DIR' >> ${SLURM_SCRIPT}
             echo ${CMD} >> ${SLURM_SCRIPT}
 
-            cat ${SLURM_SCRIPT}
-            #sbatch ${SLURM_SCRIPT}
+            #cat ${SLURM_SCRIPT}
+            sbatch ${SLURM_SCRIPT}
             done
         done
     done
