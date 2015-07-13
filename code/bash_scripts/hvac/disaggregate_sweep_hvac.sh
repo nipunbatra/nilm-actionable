@@ -13,8 +13,8 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
         for algo in "${alogs[@]}"
             do
 
-            OFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".out
-            EFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".err
+            OFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".out
+            EFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".err
 
             SLURM_SCRIPT=N${N_STATES}_K${K}_T${TRAIN}.pbs
             CMD='python ../../hvac/disaggregate_hvac.py ~/wikienergy-2013.h5 '$N_STATES' '$K' '$TRAIN' '$algo''
