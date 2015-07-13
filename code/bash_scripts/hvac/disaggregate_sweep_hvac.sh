@@ -3,16 +3,17 @@
 
 source ~/.bashrc
 TRAIN=50
-echo $TRAIN
 declare -a algos=("FHMM" "CO" "Hart")
-echo "${alogs[@]}"
+num_alogs=${#algos[@]}
+echo $num_alogs
 for ((N_STATES=2; N_STATES<5; N_STATES+=1))
     do
     for ((K=3;K<7;K+=1))
         do
-        for algo in "${alogs[@]}"
+        for((ii=0;ii<$num_algos;ii+=1))
             do
-
+            algo=${algos[$ii]}
+            echo $algo
             OFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".out
             EFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo".err
 
