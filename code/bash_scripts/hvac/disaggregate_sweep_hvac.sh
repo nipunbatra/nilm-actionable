@@ -3,8 +3,9 @@
 
 source ~/.bashrc
 TRAIN=50
+echo $TRAIN
 declare -a algos=("FHMM" "CO" "Hart")
-
+echo "${alogs[@]}"
 for ((N_STATES=2; N_STATES<5; N_STATES+=1))
     do
     for ((K=3;K<7;K+=1))
