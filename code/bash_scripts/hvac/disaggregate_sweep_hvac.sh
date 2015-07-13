@@ -4,8 +4,8 @@
 source ~/.bashrc
 TRAIN=50
 declare -a algos=("FHMM" "CO" "Hart")
-num_alogs=${#algos[@]}
-echo $num_alogs
+num_algos=${#algos[@]}
+echo $num_algos
 for ((N_STATES=2; N_STATES<5; N_STATES+=1))
     do
     for ((K=3;K<7;K+=1))
