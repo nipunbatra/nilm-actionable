@@ -1,7 +1,7 @@
 import os
 import time
 import warnings
-
+import datetime
 import pandas as pd
 from nilmtk import DataSet, MeterGroup
 from nilmtk.disaggregate import CombinatorialOptimisation, FHMM, Hart85
@@ -27,6 +27,10 @@ K = int(sys.argv[3])
 train_fraction = int(sys.argv[4]) / 100.0
 classifier = sys.argv[5]
 
+if len(sys.argv)>6:
+    start = int(sys.argv[6])
+else:
+    start = 0
 print("*" * 80)
 print("Arguments")
 
@@ -50,6 +54,7 @@ def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
 
 out = {}
 for b_id, building in ds.buildings.iteritems():
+
     try:
         print b_id
 
@@ -62,7 +67,7 @@ for b_id, building in ds.buildings.iteritems():
 
         train = DataSet(ds_path)
         test = DataSet(ds_path)
-        split_point = elec.train_test_split(train_fraction=train_fraction).date()
+        split_point = datetime.date(2013, 7, 16)
         train.set_window(end=split_point)
         #test.set_window(start=split_point)
         train_elec = train.buildings[b_id].elec
