@@ -69,7 +69,7 @@ for f_id, b_id in building_ids_to_consider.iteritems():
     start = time.time()
     out[f_id] = {}
     # Need to put it here to ensure that we have a new instance of the algorithm each time
-    cls_dict = {"CO": CombinatorialOptimisation(), "FHMM": FHMM(), "Hart": Hart85()}
+    cls_dict = {"Hart": Hart85()}
     elec = ds.buildings[b_id].elec
     mains = elec.mains()
     fridge_instance = fridges.meters[f_id].appliances[0].identifier.instance
@@ -95,10 +95,9 @@ for f_id, b_id in building_ids_to_consider.iteritems():
     top_k_train_list = top_k_dict[str(f_id)][:K]
     print("Top %d list is " %(K), top_k_train_list)
     top_k_train_elec = MeterGroup([m for m in ds.buildings[b_id].elec.meters if m.instance() in top_k_train_list])
-
-    print ("../../bash_runs/%s" % (out_file_name))
-    if not os.path.exists("../../bash_runs/%s" % (out_file_name)):
-        os.makedirs("../../bash_runs/%s" % (out_file_name))
+    print ("../../bash_runs_hart/%s" % (out_file_name))
+    if not os.path.exists("../../bash_runs_hart/%s" % (out_file_name)):
+        os.makedirs("../../bash_runs_hart/%s" % (out_file_name))
 
 
     # Add this fridge to training if this fridge is not in top-k
@@ -110,7 +109,7 @@ for f_id, b_id in building_ids_to_consider.iteritems():
             print("-"*80)
             print("Training on %s" %clf_name)
             disag_filename = '%s/%d.h5' % (clf_name, f_id)
-            ds_filename_total = "../../bash_runs/%s/%s" % (out_file_name, disag_filename)
+            ds_filename_total = "../../bash_runs_hart/%s/%s" % (out_file_name, disag_filename)
             if not os.path.exists(ds_filename_total):
                 # We've already learnt the model, move ahead!
                 if clf_name == "Hart":
@@ -157,12 +156,13 @@ for f_id, b_id in building_ids_to_consider.iteritems():
                     pred_ser_fridge.name="FHMM"
                     out[f_id][clf_name]=pred_ser_fridge
 
+
         fridge_df_test = fridge_elec_test.load().next()[('power', 'active')]
         fridge_df_test.name="GT"
         out[f_id]["GT"] = fridge_df_test
         out_df = pd.DataFrame(out[f_id])
         print("Writing for fridge id: %d" %f_id)
-        out_df.to_hdf("../../bash_runs/%s/%d.h5" % (out_file_name, f_id), "disag")
+        out_df.to_hdf("../../bash_runs_hart/%s/%d.h5" % (out_file_name, f_id), "disag")
 
         end = time.time()
         time_taken = int(end - start)

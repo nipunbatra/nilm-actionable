@@ -143,11 +143,15 @@ def variation_in_top_k(out, num_states=2, train_fraction=50):
     for metric in ["f_score", "error energy", "mae power"]:
 
         o[metric] = {}
+        if num_states not in out.keys():
+            num_states = str(num_states)
         for k in out[num_states].keys():
             o[metric][k] = {}
             for algo in ["FHMM", "Hart", "CO"]:
                 o[metric][k][algo] = []
     for k in out[num_states].keys():
+        if train_fraction not in out[num_states][k]:
+            train_fraction = str(train_fraction)
         temp = out[num_states][k][train_fraction]
         for home, home_results in temp.iteritems():
             for metric, metric_results in home_results.iteritems():
@@ -157,5 +161,5 @@ def variation_in_top_k(out, num_states=2, train_fraction=50):
     for k in out[num_states].keys():
         for metric, metric_results in home_results.iteritems():
             for algo, val in metric_results.iteritems():
-                o[metric][k][algo] = np.mean(o[metric][k][algo])
+                o[metric][k][algo] = np.median(o[metric][k][algo])
     return o
