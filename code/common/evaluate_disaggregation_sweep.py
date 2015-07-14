@@ -47,9 +47,15 @@ metrics = {"mae power": mae,
            "error energy": mne,
            "f_score": f_score}
 
+import json
+
+
+def write_results_to_json(out, json_path):
+    with open(json_path, "w") as f:
+        json.dump(out, f)
+
 
 def load_results_from_json(json_path):
-    import json
     with open(json_path, "r") as f:
         out = json.load(f, parse_int=int)
     return out
