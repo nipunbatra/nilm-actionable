@@ -78,8 +78,7 @@ def results_dictionary():
             home_name = home.split("/")[-1].split(".")[0]
             out[num_states][K][train_fraction][home_name] = {}
             for metric_name, metric_func in metrics.iteritems():
-                if metric_name not in out[num_states][K][train_fraction][home_name][metric_name]:
-
+                if metric_name not in out[num_states][K][train_fraction][home_name]:
                     out[num_states][K][train_fraction][home_name][metric_name]= {}
                 out[num_states][K][train_fraction][home_name][metric_name][algo_name] = metric_func(df, algo_name)
     return out
