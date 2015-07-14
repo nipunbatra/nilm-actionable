@@ -18,7 +18,7 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
                 OFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.out
                 EFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.err
 
-                SLURM_SCRIPT=N${N_STATES}_K${K}_T${TRAIN}.pbs
+                SLURM_SCRIPT=N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.pbs
                 CMD='python ../../fridge/disaggregate.py ~/wikienergy-2.h5 '$N_STATES' '$K' '$TRAIN' '$algo' '$group''
                 echo $CMD
 

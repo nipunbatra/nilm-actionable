@@ -18,7 +18,7 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
                 OFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.out
                 EFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.err
 
-                SLURM_SCRIPT=N${N_STATES}_K${K}_T${TRAIN}.pbs
+                SLURM_SCRIPT=N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.pbs
                 CMD='python ../../hvac/disaggregate_hvac.py ~/wikienergy-2013.h5 '$N_STATES' '$K' '$TRAIN' '$algo' '$group''
                 echo $CMD
 
