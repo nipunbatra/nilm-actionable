@@ -121,6 +121,11 @@ def variation_in_num_states(out, K=5, train_fraction=50):
             for metric, metric_results in home_results.iteritems():
                 for algo, val in metric_results.iteritems():
                     o[metric][num_states][algo].append(val)
+
+    for metric in o.keys():
+        for num_states in o[metric].keys():
+            for algo in o[metric][num_states].keys():
+                o[metric][num_states][algo] = np.median(o[metric][num_states][algo])
     return o
 
     for num_states in out.keys():
