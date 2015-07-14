@@ -14,13 +14,20 @@ warnings.filterwarnings("ignore")
 import sys
 import json
 
-sys.path.append("../../code/fridge/")
+
+script_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(script_path, "..", "common"))
+sys.path.append(os.path.join(script_path, ".."))
+
+import glob
+
+BASH_RUN = os.path.join(script_path, "..", "bash_runs_hart")
 
 if (len(sys.argv) < 2):
     ds_path = "/Users/nipunbatra/Downloads/wikienergy-2.h5"
 else:
     ds_path = sys.argv[1]
-with open('../../../data/fridge/top_k.json', 'r') as fp:
+with open(os.path.join(script_path, "..", "..", "data/fridge/top_k.json"), 'r') as fp:
     top_k_dict = json.load(fp)
 
 num_states = int(sys.argv[2])
@@ -30,11 +37,14 @@ train_fraction = int(sys.argv[4]) / 100.0
 print("*"*80)
 print("Arguments")
 
-print("NUmber states", num_states)
+print("Number states", num_states)
 print("Train fraction is ", train_fraction)
 print("Top k", K)
 
 out_file_name = "N%d_K%d_T%s" % (num_states, K, sys.argv[4])
+OUTPUT_PATH = os.path.join(BASH_RUN, out_file_name)
+existing_files = glob.glob(OUTPUT_PATH+str("/*.h5"))
+existing_files_names = [int(x.split("/")[-1].split(".")[0]) for x in existing_files]
 
 ds = DataSet(ds_path)
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
@@ -49,6 +59,8 @@ fridge_ids_to_consider = compressor_powers.keys()
 
 building_ids_to_consider = fridge_id_building_id_ser[fridge_ids_to_consider]
 
+#sys.exit(0)
+
 def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
     for elec_name in list_of_elecs:
         appl = elec_name.appliances[0]
@@ -60,9 +72,10 @@ out = {}
 ignore_list = [37, 43, 34, 25, 22, 46, 47, 44, 45, 42, 29, 1, 2, 8, 11, 13, 15, 14, 55,54,
                57, 51, 50, 35, 52, 33, 18, 58, 59, 60]
 for f_id, b_id in building_ids_to_consider.iteritems():
-    if f_id in ignore_list:
-        print("Ignoring", f_id)
-        continue
+    if f_id in existing_files_names:
+            print("Skipping", f_id)
+            continue
+
     print("*"*80)
     print("Starting for ids %d and %d" % (f_id, b_id))
     print("*"*80)
@@ -95,9 +108,8 @@ for f_id, b_id in building_ids_to_consider.iteritems():
     top_k_train_list = top_k_dict[str(f_id)][:K]
     print("Top %d list is " %(K), top_k_train_list)
     top_k_train_elec = MeterGroup([m for m in ds.buildings[b_id].elec.meters if m.instance() in top_k_train_list])
-    print ("../../bash_runs_hart/%s" % (out_file_name))
-    if not os.path.exists("../../bash_runs_hart/%s" % (out_file_name)):
-        os.makedirs("../../bash_runs_hart/%s" % (out_file_name))
+    if not os.path.exists(os.path.join(script_path, "..","..", "bash_runs_hart/%s" % (out_file_name))):
+        os.makedirs(os.path.join(script_path, "..","..", "bash_runs_hart/%s" % (out_file_name)))
 
 
     # Add this fridge to training if this fridge is not in top-k
@@ -162,7 +174,7 @@ for f_id, b_id in building_ids_to_consider.iteritems():
         out[f_id]["GT"] = fridge_df_test
         out_df = pd.DataFrame(out[f_id])
         print("Writing for fridge id: %d" %f_id)
-        out_df.to_hdf("../../bash_runs_hart/%s/%d.h5" % (out_file_name, f_id), "disag")
+        out_df.to_hdf("/Users/nipunbatra/git/nilm-actionable/code/bash_runs_hart/%s/%d.h5" % (out_file_name, f_id), "disag")
 
         end = time.time()
         time_taken = int(end - start)

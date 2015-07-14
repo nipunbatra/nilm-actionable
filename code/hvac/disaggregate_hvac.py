@@ -11,6 +11,7 @@ warnings.filterwarnings("ignore")
 
 import sys
 import json
+import glob
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 BASH_RUN_HVAC = os.path.join(script_path, "..", "bash_runs_hvac")
@@ -26,11 +27,8 @@ num_states = int(sys.argv[2])
 K = int(sys.argv[3])
 train_fraction = int(sys.argv[4]) / 100.0
 classifier = sys.argv[5]
+home_group = int(sys.argv[6])
 
-if len(sys.argv)>6:
-    start = int(sys.argv[6])
-else:
-    start = 0
 print("*" * 80)
 print("Arguments")
 
@@ -41,8 +39,27 @@ print("Classifier", classifier)
 
 
 out_file_name = "N%d_K%d_T%s_%s" % (num_states, K, sys.argv[4], classifier)
+OUTPUT_PATH = os.path.join(BASH_RUN_HVAC, out_file_name)
+
+existing_files = glob.glob(OUTPUT_PATH+str("/*.h5"))
+existing_files_names = [int(x.split("/")[-1].split(".")[0]) for x in existing_files]
 
 ds = DataSet(ds_path)
+
+NUM_CHUNKS = 20
+
+def chunk_it(seq, num):
+    avg = len(seq) / float(num)
+    out = []
+    last = 0.0
+
+    while last < len(seq):
+        out.append(seq[int(last):int(last + avg)])
+        last += avg
+
+    return out
+
+building_chunk_items = chunk_it(ds.buildings.items(), NUM_CHUNKS)
 
 
 def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
@@ -53,9 +70,12 @@ def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
 
 
 out = {}
-for b_id, building in ds.buildings.iteritems():
+for b_id, building in building_chunk_items[home_group]:
 
     try:
+        if b_id in existing_files_names:
+            print("Skipping", b_id)
+            continue
         print b_id
 
         out[b_id] = {}
