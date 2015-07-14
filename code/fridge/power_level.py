@@ -10,11 +10,13 @@ RESULT_PATH = os.path.join(script_path, "..","..","data/fridge")
 FOLDER_NAMES = ["N2_K4_T50_Hart", "N2_K4_T50_CO", "N2_K4_T50_FHMM", "N3_K4_T50_CO" , "N3_K4_T50_FHMM"]
 
 out = {}
+out["GT"] = {}
 for folder in FOLDER_NAMES:
     folder_path = os.path.join(DATA_PATH, folder)
     algo_name = folder.split("_")[-1]
     dictionary_key = folder[:3]+algo_name
     out[dictionary_key] = {}
+
     homes = glob.glob(folder_path+"/*.h5")[:5]
     for home in homes:
         home_number = home.split("/")[-1].split(".")[0]
