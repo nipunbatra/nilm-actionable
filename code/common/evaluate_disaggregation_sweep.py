@@ -3,8 +3,11 @@ import numpy as np
 from sklearn.metrics import f1_score, mean_absolute_error
 import os
 import matplotlib.pyplot as plt
+import sys
 
-RESULTS_PATH = os.path.expanduser("~/git/nilm-actionable/code/bash_runs_fridge")
+appliance = sys.argv[1]
+
+RESULTS_PATH = os.path.expanduser("~/git/nilm-actionable/code/bash_runs_%s" %appliance)
 
 import sys
 sys.path.append("../common")
@@ -129,8 +132,8 @@ def plot_variation_num_states(o):
     plt.tight_layout()
     ax[0].legend(loc='upper center', bbox_to_anchor=(0.5, 1.25),
           ncol=3)
-    plt.savefig("../../figures/fridge/num_states_fridge.png", bbox_inches="tight")
-    plt.savefig("../../figures/fridge/num_states_fridge.pdf", bbox_inches="tight")
+    plt.savefig("../../figures/%s/num_states_%s.png" %(appliance, appliance), bbox_inches="tight")
+    plt.savefig("../../figures/%s/num_states_%s.pdf" %(appliance, appliance), bbox_inches="tight")
 
 
 
