@@ -13,9 +13,6 @@ import sys
 import json
 import glob
 
-script_path = os.path.dirname(os.path.realpath(__file__))
-BASH_RUN_HVAC = os.path.join(script_path, "..", "bash_runs_hvac")
-
 if len(sys.argv) < 2:
     ds_path = "/Users/nipunbatra/wikienergy2013.h5"
 else:
@@ -37,6 +34,8 @@ print("Train fraction is ", train_fraction)
 print("Top k", K)
 print("Classifier", classifier)
 
+script_path = os.path.dirname(os.path.realpath(__file__))
+BASH_RUN_HVAC = os.path.join(script_path, "..", "bash_runs_hvac")
 
 out_file_name = "N%d_K%d_T%s_%s" % (num_states, K, sys.argv[4], classifier)
 OUTPUT_PATH = os.path.join(BASH_RUN_HVAC, out_file_name)
