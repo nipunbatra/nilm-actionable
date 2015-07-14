@@ -20,7 +20,7 @@ for folder in FOLDER_NAMES:
         with pd.HDFStore(home) as st:
             df = st['/disag']
 
-            ser = df[[algo_name]]
+            ser = df[algo_name]
             ser_pos = ser[ser>20]
             out[dictionary_key][home] = pd.value_counts(ser_pos).head(1).index[0]
 
