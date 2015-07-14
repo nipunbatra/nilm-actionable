@@ -17,8 +17,7 @@ if len(sys.argv) < 2:
     ds_path = "/Users/nipunbatra/wikienergy2013.h5"
 else:
     ds_path = sys.argv[1]
-with open(os.path.join(script_path, "..", "..", 'data/hvac/top_k_2013.json'), 'r') as fp:
-    top_k_dict = json.load(fp)
+
 
 num_states = int(sys.argv[2])
 K = int(sys.argv[3])
@@ -46,6 +45,9 @@ existing_files_names = [int(x.split("/")[-1].split(".")[0]) for x in existing_fi
 ds = DataSet(ds_path)
 
 NUM_CHUNKS = 20
+
+with open(os.path.join(script_path, "..", "..", 'data/hvac/top_k_2013.json'), 'r') as fp:
+    top_k_dict = json.load(fp)
 
 def chunk_it(seq, num):
     avg = len(seq) / float(num)

@@ -20,8 +20,6 @@ if (len(sys.argv) < 2):
     ds_path = "/Users/nipunbatra/Downloads/wikienergy-2.h5"
 else:
     ds_path = sys.argv[1]
-with open('../../../data/fridge/top_k.json', 'r') as fp:
-    top_k_dict = json.load(fp)
 
 num_states = int(sys.argv[2])
 K = int(sys.argv[3])
@@ -60,6 +58,10 @@ building_ids_to_consider = fridge_id_building_id_ser[fridge_ids_to_consider]
 
 NUM_CHUNKS = 30
 
+with open(os.path.join(script_path, "..", "..", 'data/fridge/top_k.json'), 'r') as fp:
+    top_k_dict = json.load(fp)
+
+
 
 def chunk_it(seq, num):
     avg = len(seq) / float(num)
@@ -79,7 +81,7 @@ def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
         if (appl.identifier.type, appl.identifier.instance) == (appliance_name, appliance_instance):
             return elec_name
 
-
+sys.exit(0)
 building_chunk_items = chunk_it(building_ids_to_consider.items(), NUM_CHUNKS)
 
 out = {}
