@@ -17,33 +17,27 @@ def get_immediate_subdirectories(dir):
             if os.path.isdir(os.path.join(dir, name))]
 
 
-def f_score(df, lim=20):
+def f_score(df, algo_name,lim=20):
     gt = (df > lim)[["GT"]]
-    pred = (df > 20)[["CO", "FHMM", "Hart"]]
-    o = {}
-    for algo in ["CO", "FHMM", "Hart"]:
-        o[algo] = f1_score(gt["GT"], pred[algo])
-    return o
+    pred = (df > 20)[[algo_name]]
+    return f1_score(gt["GT"], pred[algo_name])
 
 
-def mne(df):
+
+def mne(df, algo_name):
     out_energy = {}
     x = df[["GT"]]
     gt_energy = x.sum().values[0]
-    for algo in ["CO", "FHMM", "Hart"]:
-        y = df[[algo]]
-        algo_energy = y.sum().values[0]
-        out_energy[algo] = np.abs(algo_energy - gt_energy) / gt_energy
-    return out_energy
+    y = df[[algo_name]]
+    algo_energy = y.sum().values[0]
+    return np.abs(algo_energy - gt_energy) / gt_energy
 
 
-def mae(df):
+def mae(df, algo_name):
     out = {}
     x = df[["GT"]].values
-    for algo in ["CO", "FHMM", "Hart"]:
-        y = df[[algo]].values
-        out[algo] = mean_absolute_error(x, y)
-    return out
+    y = df[[algo_name]].values
+    return mean_absolute_error(x, y)
 
 
 metrics = {"mae power": mae,
@@ -66,6 +60,7 @@ def results_dictionary():
         num_states = int(params[0][1:])
         K = int(params[1][1:])
         train_fraction = int(params[2][1:])
+        algo_name = params[3]
         if num_states not in out:
             out[num_states] = {}
         if K not in out[num_states]:
@@ -83,7 +78,7 @@ def results_dictionary():
             home_name = home.split("/")[-1].split(".")[0]
             out[num_states][K][train_fraction][home_name] = {}
             for metric_name, metric_func in metrics.iteritems():
-                out[num_states][K][train_fraction][home_name][metric_name] = metric_func(df)
+                out[num_states][K][train_fraction][home_name][metric_name][algo_name] = metric_func(df, algo_name)
     return out
 
 def variation_in_num_states(out, K=5, train_fraction=50):
