@@ -7,7 +7,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 DATA_PATH = os.path.join(script_path, "..","bash_runs_fridge/")
 RESULT_PATH = os.path.join(script_path, "..","..","data/fridge")
 
-FOLDER_NAMES = ["N2_K4_T50_Hart", "N2_K4_T50_CO", "N2_K4_T50_FHMM", "N2_K4_T50_CO" , "N3_K4_T50_FHMM"]
+FOLDER_NAMES = ["N2_K4_T50_Hart", "N2_K4_T50_CO", "N2_K4_T50_FHMM", "N3_K4_T50_CO" , "N3_K4_T50_FHMM"]
 
 out = {}
 for folder in FOLDER_NAMES:
