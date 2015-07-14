@@ -58,35 +58,42 @@ def results_dictionary():
     subdirs = get_immediate_subdirectories(RESULTS_PATH)
     print(subdirs)
     out = {}
+
     for dir in subdirs:
-        params = dir.split("_")
-        num_states = int(params[0][1:])
-        K = int(params[1][1:])
-        train_fraction = int(params[2][1:])
-        algo_name = params[3]
-        if num_states not in out:
-            out[num_states] = {}
-        if K not in out[num_states]:
-            out[num_states][K] = {}
-        if train_fraction not in out[num_states][K]:
-            out[num_states][K][train_fraction] = {}
-        # Find all H5 files
-        dir_full_path = os.path.join(RESULTS_PATH, dir)
-        homes = glob.glob(dir_full_path + "/*.h5")
-        for home in homes:
-            print num_states, K, train_fraction, home
-            home_full_path = os.path.join(os.path.join(RESULTS_PATH, dir), home)
-            with pd.HDFStore(home) as store:
-                df = store['/disag'].dropna()
-            home_name = home.split("/")[-1].split(".")[0]
-            out[num_states][K][train_fraction][home_name] = {}
-            for metric_name, metric_func in metrics.iteritems():
-                if metric_name not in out[num_states][K][train_fraction][home_name]:
-                    out[num_states][K][train_fraction][home_name][metric_name]= {}
-                out[num_states][K][train_fraction][home_name][metric_name][algo_name] = metric_func(df, algo_name)
+        try:
+            params = dir.split("_")
+            num_states = int(params[0][1:])
+            K = int(params[1][1:])
+            train_fraction = int(params[2][1:])
+            algo_name = params[3]
+            if num_states not in out:
+                out[num_states] = {}
+            if K not in out[num_states]:
+                out[num_states][K] = {}
+            if train_fraction not in out[num_states][K]:
+                out[num_states][K][train_fraction] = {}
+            # Find all H5 files
+            dir_full_path = os.path.join(RESULTS_PATH, dir)
+            homes = glob.glob(dir_full_path + "/*.h5")
+            for home in homes:
+                print num_states, K, train_fraction, home
+                home_full_path = os.path.join(os.path.join(RESULTS_PATH, dir), home)
+                with pd.HDFStore(home) as store:
+                    df = store['/disag'].dropna()
+                home_name = home.split("/")[-1].split(".")[0]
+                out[num_states][K][train_fraction][home_name] = {}
+                for metric_name, metric_func in metrics.iteritems():
+                    if metric_name not in out[num_states][K][train_fraction][home_name]:
+                        out[num_states][K][train_fraction][home_name][metric_name]= {}
+                    out[num_states][K][train_fraction][home_name][metric_name][algo_name] = metric_func(df, algo_name)
+        except Exception, e:
+            import traceback
+            traceback.print_exc()
+
     return out
 
 def variation_in_num_states(out, K=5, train_fraction=50):
+
     o = {}
 
     for metric in ["f_score", "error energy", "mae power"]:
@@ -106,6 +113,7 @@ def variation_in_num_states(out, K=5, train_fraction=50):
             for metric, metric_results in home_results.iteritems():
                 for algo, val in metric_results.iteritems():
                     o[metric][num_states][algo].append(val)
+    return o
 
     for num_states in out.keys():
         for metric, metric_results in home_results.iteritems():
