@@ -61,7 +61,7 @@ result_df = pd.DataFrame({"error":error, "precision":precision, "recall":recall}
 
 from common_functions import latexify, format_axes
 
-latexify(columns=1)
+latexify(columns=1, fig_height=2.3)
 ax = result_df.plot()
 ax.set_xlabel("Percentage threshold")
 format_axes(ax)
@@ -69,13 +69,14 @@ plt.ylim((-0.1, 1.1))
 
 
 
-box = ax.get_position()
-ax.set_position([box.x0, box.y0, box.width * 0.7, box.height])
-L = ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-L.get_texts()[0].set_text(r'Usage' '\n' 'Energy' '\n' r'Error $\%$')
+plt.tight_layout()
+
+L = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.35),
+          ncol=3)
+L.get_texts()[0].set_text(r'Usage Energy' '\n' r'Error $\%$')
 L.get_texts()[1].set_text(r'Precision')
 L.get_texts()[2].set_text(r'Recall')
-plt.tight_layout()
+#plt.tight_layout()
 
 
 plt.savefig("../../figures/fridge/fridge_activity_energy.png", bbox_inches="tight")

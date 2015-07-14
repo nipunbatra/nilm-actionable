@@ -135,15 +135,19 @@ def variation_in_num_states(out, K=5, train_fraction=50):
     return o
 
 def plot_variation_num_states(o):
-    latexify(fig_height=3.9)
+    latexify(fig_height=3.6)
     fig, ax = plt.subplots(nrows=3, sharex=True)
     error_energy = pd.DataFrame(o["error energy"]).T
+    error_energy["Hart"] = error_energy["Hart"].value_counts().head(1).index[0]
     error_energy.plot(ax=ax[0], kind="bar", rot=0)
     ax[0].set_ylabel(r"\% Error" "\n" "in Energy")
     mae_power = pd.DataFrame(o["mae power"]).T
+    mae_power["Hart"] =  mae_power["Hart"].value_counts().head(1).index[0]
     mae_power.plot(ax=ax[1], kind="bar", legend=False, rot=0)
     ax[1].set_ylabel("Mean absolute error\n in power (W)")
     f_score = pd.DataFrame(o["f_score"]).T
+    f_score["Hart"] =  f_score["Hart"].value_counts().head(1).index[0]
+
     f_score.plot(ax=ax[2], kind="bar", legend=False, rot=0)
     ax[2].set_ylabel(r"F-score")
     ax[2].set_xlabel("Number of states used for modelling")
@@ -155,6 +159,34 @@ def plot_variation_num_states(o):
           ncol=3)
     plt.savefig("../../figures/%s/num_states_%s.png" %(appliance, appliance), bbox_inches="tight")
     plt.savefig("../../figures/%s/num_states_%s.pdf" %(appliance, appliance), bbox_inches="tight")
+
+
+def plot_variation_top_k(o):
+    latexify(fig_height=3.6)
+    fig, ax = plt.subplots(nrows=3, sharex=True)
+    error_energy = pd.DataFrame(o["error energy"]).T
+    error_energy["Hart"] = error_energy["Hart"].value_counts().head(1).index[0]
+    error_energy.plot(ax=ax[0], kind="bar", rot=0)
+    ax[0].set_ylabel(r"\% Error" "\n" "in Energy")
+    mae_power = pd.DataFrame(o["mae power"]).T
+    mae_power["Hart"] =  mae_power["Hart"].value_counts().head(1).index[0]
+    mae_power.plot(ax=ax[1], kind="bar", legend=False, rot=0)
+    ax[1].set_ylabel("Mean absolute error\n in power (W)")
+    f_score = pd.DataFrame(o["f_score"]).T
+    f_score["Hart"] =  f_score["Hart"].value_counts().head(1).index[0]
+
+    f_score.plot(ax=ax[2], kind="bar", legend=False, rot=0)
+    ax[2].set_ylabel(r"F-score")
+
+    ax[2].set_xlabel("Top $k$ appliances used for modelling")
+
+    for a in ax:
+        format_axes(a)
+    plt.tight_layout()
+    ax[0].legend(loc='upper center', bbox_to_anchor=(0.5, 1.25),
+          ncol=3)
+    plt.savefig("../../figures/%s/top_k_%s.png" %(appliance, appliance), bbox_inches="tight")
+    plt.savefig("../../figures/%s/top_k_%s.pdf" %(appliance, appliance), bbox_inches="tight")
 
 
 
