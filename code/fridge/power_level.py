@@ -11,7 +11,7 @@ FOLDER_NAMES = ["N2_K4_T50_Hart", "N2_K4_T50_CO", "N2_K4_T50_FHMM", "N2_K4_T50_C
 
 out = {}
 for folder in FOLDER_NAMES:
-    folder_path = os.path.join(RESULT_PATH, folder)
+    folder_path = os.path.join(DATA_PATH, folder)
     algo_name = folder.split("_")[-1]
     dictionary_key = folder[:3]+algo_name
     out[dictionary_key] = {}
