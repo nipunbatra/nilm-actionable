@@ -6,6 +6,9 @@ sys.path.append("../common")
 
 from common_functions import latexify, format_axes
 
+algos = ["CO", "FHMM", "Hart"]
+
+
 df = pd.read_csv("../../data/fridge/usage_defrost_cycles.csv")
 
 df["usage proportion"] = df["usage_cycles"]/(df["usage_cycles"] + df["non_usage_cycles"])
