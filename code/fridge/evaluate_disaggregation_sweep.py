@@ -4,7 +4,7 @@ from sklearn.metrics import f1_score, mean_absolute_error
 import os
 import matplotlib.pyplot as plt
 
-RESULTS_PATH = os.path.expanduser("~/git/nilm-actionable/code/bash_runs")
+RESULTS_PATH = os.path.expanduser("~/git/nilm-actionable/code/bash_runs_fridge")
 
 import sys
 sys.path.append("../common")
@@ -53,7 +53,7 @@ def load_results_from_json(json_path):
 
 def results_dictionary():
     subdirs = get_immediate_subdirectories(RESULTS_PATH)
-
+    print(subdirs)
     out = {}
     for dir in subdirs:
         params = dir.split("_")
