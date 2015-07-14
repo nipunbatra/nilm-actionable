@@ -17,9 +17,10 @@ for folder in FOLDER_NAMES:
     dictionary_key = folder[:3]+algo_name
     out[dictionary_key] = {}
 
-    homes = glob.glob(folder_path+"/*.h5")[:5]
+    homes = glob.glob(folder_path+"/*.h5")
     for home in homes:
         home_number = home.split("/")[-1].split(".")[0]
+        print home_number
         with pd.HDFStore(home) as st:
             df = st['/disag']
 
