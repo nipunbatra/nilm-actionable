@@ -81,8 +81,7 @@ def find_specific_appliance(appliance_name, appliance_instance, list_of_elecs):
         if (appl.identifier.type, appl.identifier.instance) == (appliance_name, appliance_instance):
             return elec_name
 
-sys.exit(0)
-building_chunk_items = chunk_it(building_ids_to_consider.items(), NUM_CHUNKS)
+building_chunk_items = chunk_it(list(building_ids_to_consider.iteritems()), NUM_CHUNKS)
 
 out = {}
 
