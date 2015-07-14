@@ -435,7 +435,7 @@ o = {}
 o_new = {}
 LIST_OF_HOMES = glob.glob(COMPLETE_PATH+"/*.h5")
 
-for home in LIST_OF_HOMES:
+for home in LIST_OF_HOMES[:3]:
     home_number = int(home.split("/")[-1].split(".")[0])
     with pd.HDFStore(home) as store:
         df = store["/disag"][algo]
