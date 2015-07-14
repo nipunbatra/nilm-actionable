@@ -82,15 +82,17 @@ def results_dictionary():
             dir_full_path = os.path.join(RESULTS_PATH, dir)
             homes = glob.glob(dir_full_path + "/*.h5")
             for home in homes:
-                print num_states, K, train_fraction, home
+                print num_states, K, train_fraction, home, algo_name
                 home_full_path = os.path.join(os.path.join(RESULTS_PATH, dir), home)
                 with pd.HDFStore(home) as store:
                     df = store['/disag'].dropna()
                 home_name = home.split("/")[-1].split(".")[0]
-                out[num_states][K][train_fraction][home_name] = {}
+                if home_name not in out[num_states][K][train_fraction]:
+                    out[num_states][K][train_fraction][home_name] = {}
+
                 for metric_name, metric_func in metrics.iteritems():
                     if metric_name not in out[num_states][K][train_fraction][home_name]:
-                        out[num_states][K][train_fraction][home_name][metric_name]= {}
+                        out[num_states][K][train_fraction][home_name][metric_name] = {}
                     out[num_states][K][train_fraction][home_name][metric_name][algo_name] = metric_func(df, algo_name)
         except Exception, e:
             import traceback
