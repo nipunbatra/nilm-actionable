@@ -23,6 +23,6 @@ for folder in FOLDER_NAMES:
 
             ser = df[algo_name]
             ser_pos = ser[ser>20]
-            out[dictionary_key][home] = pd.value_counts(ser_pos).head(1).index[0]
+            out[dictionary_key][home_number] = pd.value_counts(ser_pos).head(1).index[0]
 
 
