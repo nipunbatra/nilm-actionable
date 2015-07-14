@@ -13,6 +13,7 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
         for((ii=0;ii<$num_algos;ii+=1))
             do
             for((group=0;group<21;group+=1))
+                do
                 algo=${algos[$ii]}
                 OFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.out
                 EFILE=../../../results/hvac/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.err
@@ -33,6 +34,7 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
 
                 #cat ${SLURM_SCRIPT}
                 sbatch ${SLURM_SCRIPT}
+                done
             done
         done
     done
