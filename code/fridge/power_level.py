@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import glob
-
+import numpy as np
 script_path = os.path.dirname(os.path.realpath(__file__))
 
 DATA_PATH = os.path.join(script_path, "..","bash_runs_fridge/")
@@ -22,7 +22,13 @@ for folder in FOLDER_NAMES:
             df = st['/disag']
 
             ser = df[algo_name]
+            gt = df["GT"]
+            gt_pos = gt[gt>20]
+            gt_median = gt_pos.median()
             ser_pos = ser[ser>20]
-            out[dictionary_key][home_number] = pd.value_counts(ser_pos).head(1).index[0]
+            abs_difference = np.abs(ser_pos.unique()-gt_median)
+            ser_pos_closest = ser_pos.unique()[(np.argmin(abs_difference))]
+            out[dictionary_key][home_number] = ser_pos_closest
+            out["GT"][home_number] = gt_median
 
 
