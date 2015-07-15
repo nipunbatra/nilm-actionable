@@ -7,3 +7,5 @@ iidea/
 *.dat
 *.bak
 *.pbs
+
+!weather_2013.h5
