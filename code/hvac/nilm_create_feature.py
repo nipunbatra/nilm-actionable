@@ -175,9 +175,10 @@ dataid_to_nilmtk={v:k for k, v in nilmtk_to_dataid.iteritems()}
 function_map = {"binary": fcn2min_time_fixed_binary,
                 "minutes": fcn2min_time_fixed}
 
+results = {}
 
-for folder in to_consider[:1]:
-
+for folder in to_consider[:2]:
+    results[folder]={}
     output = {"binary": {}, "minutes": {}}
 
     algo = folder.split("_")[-1]
@@ -188,7 +189,7 @@ for folder in to_consider[:1]:
     home_numbers_dataid = [nilmtk_to_dataid[x] for x in home_numbers]
     data_homes = np.array(home_numbers_dataid)
     ids_common = np.intersect1d(survey_homes, data_homes)
-    for id_home_data_id in ids_common[:5]:
+    for id_home_data_id in ids_common[:2]:
 
         nilmtk_id = dataid_to_nilmtk[id_home_data_id]
         print id_home_data_id, nilmtk_id
@@ -286,9 +287,8 @@ for folder in to_consider[:1]:
                             'hvac_class': assign_hvac_class(sleep_gt, morning_gt, work_gt, evening_gt),
                             'rating': assign_hvac_score(sleep_gt, morning_gt, work_gt, evening_gt)
                         }
-    results = {}
-    results["binary"] = pd.DataFrame(output["binary"]).T
-    results["minutes"] = pd.DataFrame(output["minutes"]).T
+        results[folder]["binary"] = pd.DataFrame(output["binary"]).T
+        results[folder]["minutes"] = pd.DataFrame(output["minutes"]).T
 
 
 
