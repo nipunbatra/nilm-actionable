@@ -20,7 +20,7 @@ start_date = "2013-1-5"
 START, STOP = '2013-07-01', '2013-07-31'
 
 # Does data exist in HDFStore already?
-USE_HDF_STORE = True
+USE_HDF_STORE = False
 
 # Weather data store
 WEATHER_DATA_STORE = "../../data/hvac/weather_2013.h5"
@@ -79,6 +79,7 @@ else:
     st = pd.HDFStore(WEATHER_DATA_STORE)
     st["weather"] = weather_data_df
 
+sys.exit(0)
 
 store = pd.HDFStore("/Users/nipunbatra/Downloads/wiki-temp.h5")
 

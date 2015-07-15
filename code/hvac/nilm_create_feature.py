@@ -168,8 +168,8 @@ df = df[cols_plus_data_id].dropna()
 survey_homes = df.dataid.values
 
 ds = nilmtk.DataSet(os.path.expanduser("~/wikienergy-2013.h5"))
-nilmtk_to_dataid = {{num: building.metadata["original_name"]
-                     for num, building in ds.buildings.iteritems()}}
+nilmtk_to_dataid = {num: building.metadata["original_name"]
+                     for num, building in ds.buildings.iteritems()}
 dataid_to_nilmtk={v:k for k, v in nilmtk_to_dataid.iteritems()}
 
 function_map = {"binary": fcn2min_time_fixed_binary,
@@ -177,9 +177,11 @@ function_map = {"binary": fcn2min_time_fixed_binary,
 
 
 for folder in to_consider:
+
     output = {"binary": {}, "minutes": {}}
 
     algo = folder.split("_")[-1]
+    print algo, folder
     full_path = os.path.join(data_folder, folder)
     homes = glob.glob(full_path+"/*.h5")
     home_numbers = [int(h.split("/")[-1].split(".")[0]) for h in homes]
@@ -187,7 +189,9 @@ for folder in to_consider:
     data_homes = np.array(home_numbers_dataid)
     ids_common = np.intersect1d(survey_homes, data_homes)
     for id_home_data_id in ids_common:
+
         nilmtk_id = dataid_to_nilmtk[id_home_data_id]
+        print id_home_data_id, nilmtk_id
         home_name = os.path.join(full_path,"%d.h5" %nilmtk_id)
         with pd.HDFStore(home_name) as st:
             d = st["/disag"][START:STOP][algo]
