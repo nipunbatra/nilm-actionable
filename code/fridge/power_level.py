@@ -35,3 +35,6 @@ for folder in FOLDER_NAMES:
             out["GT"][home_number] = gt_median
 
 
+df = pd.DataFrame(out)
+df = df.dropna()
+#df.to_csv()
