@@ -154,7 +154,7 @@ def get_hourly_data(df, values):
         df_c, index=["hour"], columns=["day"], values=values)
 
 # Weather data store
-WEATHER_DATA_STORE = os.path.join(script_path, "../../data/hvac/weather_2013.h5")
+WEATHER_DATA_STORE = os.path.expanduser("~/git/nilm-actionable/data/hvac/weather_2013.h5")
 weather_data_df = pd.HDFStore(WEATHER_DATA_STORE)["/weather"]
 df = pd.read_csv(os.path.join(script_path, "../../data/total/survey_2013.csv"))
 cols = ['programmable_thermostat_currently_programmed',

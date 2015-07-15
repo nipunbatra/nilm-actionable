@@ -8,4 +8,4 @@ iidea/
 *.bak
 *.pbs
 
-!weather_2013.h5
+!data/hvac/weather_2013.h5
