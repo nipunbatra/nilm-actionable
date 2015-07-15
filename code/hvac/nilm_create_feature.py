@@ -176,7 +176,7 @@ function_map = {"binary": fcn2min_time_fixed_binary,
                 "minutes": fcn2min_time_fixed}
 
 
-for folder in to_consider:
+for folder in to_consider[:1]:
 
     output = {"binary": {}, "minutes": {}}
 
@@ -188,7 +188,7 @@ for folder in to_consider:
     home_numbers_dataid = [nilmtk_to_dataid[x] for x in home_numbers]
     data_homes = np.array(home_numbers_dataid)
     ids_common = np.intersect1d(survey_homes, data_homes)
-    for id_home_data_id in ids_common:
+    for id_home_data_id in ids_common[:5]:
 
         nilmtk_id = dataid_to_nilmtk[id_home_data_id]
         print id_home_data_id, nilmtk_id
