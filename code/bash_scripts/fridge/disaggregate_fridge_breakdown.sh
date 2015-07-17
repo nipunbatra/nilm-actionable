@@ -17,7 +17,7 @@ for ((N_STATES=2; N_STATES<5; N_STATES+=1))
             EFILE=../../../results/fridge/sweep_results/N${N_STATES}_K${K}_T${TRAIN}_"$algo"_G${group}.err
 
             SLURM_SCRIPT=N${N_STATES}_K${K}_T${TRAIN}_"$algo".pbs
-            CMD='python ../../fridge/compressor_durations_optimised_parallel '$N_STATES' '$K' '$algo''
+            CMD='python ../../fridge/fridge_compressor_durations_optimised_parallel '$N_STATES' '$K' '$algo''
             echo $CMD
 
             #rm ${SLURM_SCRIPT}
