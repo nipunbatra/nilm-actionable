@@ -43,11 +43,14 @@ y2_best_score = 0
 y2_best_pred = None
 best_random_state = -1
 best_random_score = 0
+from hvac_ids_to_consider import find_common_dataids
 
-df = pd.read_csv("../../data/hvac/minutes_a3.csv")
+df = pd.read_csv("../../data/hvac/minutes_GT.csv")
 
 df["hvac_class_copy"] = df["hvac_class"].copy()
-
+df = df[df.dataid.isin(find_common_dataids())]
+df = df.dropna()
+df.index = range(len(df))
 if NUM_CLASSES ==2:
     df.hvac_class[(df.hvac_class=="Average") | (df.hvac_class=="Good") ] ="Not bad"
     COLUMN_NAMES = ["Bad", "Not bad"]
@@ -65,11 +68,22 @@ d = {}
 
 for N_max in range(4, 5):
     print N_max, time.time()
-    cls = {"RF": RandomForestClassifier(), "DT": DecisionTreeClassifier()
-           }
+    cls = {"RF": RandomForestClassifier()}
+    #cls = {"RF": RandomForestClassifier(), "DT": DecisionTreeClassifier()}
     out_fold1 = {"SVM": {}, "DT": {}, "KNN": {}, "RF": {}, "ET": {}}
 
     y_true = test['hvac_class']
+
+    f = ('a1', 'a3', 'evening_energy', 'morning_mins')
+    for cl_name, clf in cls.iteritems():
+        np.random.seed(42)
+        clf.fit(train[list(f)], train["hvac_class"])
+        y_pred = clf.predict(test[list(f)])
+
+        accur = accuracy_multiclass(y_true, y_pred)
+        out_fold1[cl_name][f] = accur
+
+    """COMMENTED
     for f in powerset(features, N_max):
         for cl_name, clf in cls.iteritems():
             np.random.seed(42)
@@ -78,10 +92,19 @@ for N_max in range(4, 5):
 
             accur = accuracy_multiclass(y_pred, y_true)
             out_fold1[cl_name][f] = accur
-
+    """""
     out_fold2 = {"SVM": {}, "DT": {}, "KNN": {}, "RF": {}, "ET": {}}
 
     y_true = train['hvac_class']
+    np.random.seed(42)
+
+    for cl_name, clf in cls.iteritems():
+        clf.fit(test[list(f)], test["hvac_class"])
+        y_pred = clf.predict(train[list(f)])
+
+        accur = accuracy_multiclass(y_true, y_pred)
+        out_fold2[cl_name][f] = accur
+    """
     for f in powerset(features, N_max):
         np.random.seed(42)
 
@@ -91,7 +114,7 @@ for N_max in range(4, 5):
 
             accur = accuracy_multiclass(y_pred, y_true)
             out_fold2[cl_name][f] = accur
-
+    """
     d[N_max] = {}
     for technique in cls.iterkeys():
         temp = ((pd.Series(out_fold1[technique]) + pd.Series(out_fold2[technique])) / 2).dropna()
@@ -132,10 +155,11 @@ for n, dn in d.iteritems():
             if technique in ["SVM"]:
                 SEEDMAX=2
             else:
-                SEEDMAX=1000
+                SEEDMAX=10000
 
 
-            for seed in range(1, SEEDMAX):
+            for seed in range(1874, 1875):
+            #for seed in range(1, SEEDMAX):
                 confusion, accuracy, useless = train_cross_validation(cls[technique], seed, feature)
                 accuracies[seed] = accuracy
             x = pd.Series(accuracies)
@@ -144,4 +168,5 @@ for n, dn in d.iteritems():
             optimal_confusion, temp, predicted_labels = train_cross_validation(cls[technique], optimal_seed, feature)
             value_dict["optimal_confusion"] = optimal_confusion
             value_dict["predicted_labels"] = predicted_labels
+            value_dict["optimal_seed"] = optimal_seed
 
