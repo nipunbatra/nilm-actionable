@@ -36,9 +36,21 @@ def accuracy_multiclass(y_true, y_pred):
         out += confusion[i, i] * 1.0 / np.sum(confusion[i])
     return out / length
 
+def find_name(folder):
+    algo_name = folder.split("_")[-1]
+    algo_N = folder.split("_")[0][1]
+    algo_K = folder.split("_")[1][1]
+    if algo_name=="Hart":
+        return "Hart"
+    else:
+        return algo_name+" (N= "+algo_N+", K= "+algo_K+")"
 
-to_consider = ["N2_K3_T50_CO", "N3_K3_T50_CO", "N2_K4_T50_CO",
-               "N2_K3_T50_FHMM", "N3_K3_T50_FHMM","N2_K3_T50_Hart"]
+
+to_consider = ["N2_K3_T50_CO", "N2_K4_T50_CO", "N2_K5_T50_CO",
+               "N3_K3_T50_CO", "N3_K4_T50_CO", "N3_K5_T50_CO",
+               "N2_K3_T50_FHMM","N2_K4_T50_FHMM","N2_K5_T50_FHMM",
+               "N3_K3_T50_FHMM","N3_K4_T50_FHMM","N3_K5_T50_FHMM",
+               "N2_K3_T50_Hart" ]
 
 for folder in to_consider:
     df = pd.read_csv("../../data/hvac/minutes_%s.csv" % folder)
@@ -64,10 +76,12 @@ for folder in to_consider:
     precision = 1.0 * a[0][0] / (a[0][0] + a[1][0])
     recall = 1.0 * a[0][0] / (a[0][0] + a[0][1])
     overall_accuracy = 1.0 * (a[0][0] + a[1][1]) / (np.sum(a))
-    output[folder] = {"Precision": precision, "Recall": recall, "Accuracy": overall_accuracy}
+
+    algo_identifier = find_name(folder)
+    output[algo_identifier] = {"Precision": precision, "Recall": recall, "Accuracy": overall_accuracy}
 
 out_df = pd.DataFrame(output)
-out_df.columns = ["Submetered", "CO (N=2, K=3)","CO (N=3, K=3)","CO (N=3, K=4)","FHMM (N=2, K=3)","FHMM (N=3, K=3)", "Hart"]
+#out_df.columns = ["Submetered", "CO (N=2, K=3)","CO (N=3, K=3)","CO (N=3, K=4)","FHMM (N=2, K=3)","FHMM (N=3, K=3)", "Hart"]
 
 latexify(columns=2, fig_height=2.6)
 ax = out_df.plot(kind="bar", rot=0)

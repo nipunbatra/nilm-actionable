@@ -124,7 +124,7 @@ def fcn2min_time_fixed_binary(params, x, data):
 
 
 to_consider = ["N2_K3_T50_CO", "N2_K4_T50_CO", "N2_K5_T50_CO",
-               "N3_K3_T50_CO", "N3_K5_T50_CO", "N3_K5_T50_CO",
+               "N3_K3_T50_CO", "N3_K4_T50_CO", "N3_K5_T50_CO",
                "N2_K3_T50_FHMM","N2_K4_T50_FHMM","N2_K5_T50_FHMM",
                "N3_K3_T50_FHMM","N3_K4_T50_FHMM","N3_K5_T50_FHMM",
                "N2_K3_T50_Hart" ]
