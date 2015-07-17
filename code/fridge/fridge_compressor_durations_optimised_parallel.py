@@ -16,10 +16,10 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 
 DATA_PATH = os.path.join(script_path, "..", "bash_runs_fridge")
 
-N = 2
-K = 4
+N = int(sys.argv[1])
+K = int(sys.argv[2])
 T = 50
-algo = sys.argv[1]
+algo = sys.argv[3]
 
 COMPLETE_PATH = os.path.join(DATA_PATH, "N%d_K%d_T%d_%s" %(N, K, T, algo))
 
@@ -466,7 +466,7 @@ d_new["usage_percentage"] = d_new.usage * 100 / d_new.total
 
 
 
-d_new.to_csv(os.path.join(script_path, "..", "..", "data/fridge/%s_usage_defrost_cycles.csv" %algo), index_label="home")
+d_new.to_csv(os.path.join(script_path, "..", "..", "data/fridge/N%d_K%d_%s_usage_defrost_cycles.csv" %(N, K, algo)), index_label="home")
 
 
 

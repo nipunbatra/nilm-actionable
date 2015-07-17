@@ -90,3 +90,6 @@ plt.tight_layout()
 
 plt.savefig("../../figures/fridge/defrost_energy_cycles.png")
 plt.savefig("../../figures/fridge/defrost_energy_cycles.pdf")
+
+e = df[df.defrost_percentage.isin(XY[-n_outliers:, 1])]
+feedback_homes = e[e.defrost_percentage>df.defrost_percentage.median()]["home"].values
