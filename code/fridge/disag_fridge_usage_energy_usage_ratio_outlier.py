@@ -17,9 +17,12 @@ DATA_PATH = os.path.join(script_path, "..","..","data/fridge")
 submetered_homes_feedback = np.array([142, 144, 146, 151, 152, 155, 157, 159, 163, 167, 169, 170])
 
 latexify(columns=2, fig_height=2.8)
+algo_total = ["N2_K3_CO","N2_K4_CO","N2_K3_FHMM","N2_K4_FHMM", "N2_K3_Hart"]
+#algo_total = ["N2_K3_CO","N2_K4_CO","N2_K3_FHMM","N2_K4_FHMM", "N2_K3_Hart"]
+ncols = len(algo_total)
 fig, ax = plt.subplots(ncols=3, sharey=True)
 
-for i, algo in enumerate(["CO", "FHMM", "Hart"]):
+for i, algo in enumerate(algo_total):
 
     df = pd.read_csv(os.path.join(DATA_PATH, "%s_usage_defrost_cycles.csv" %algo)).dropna()
 

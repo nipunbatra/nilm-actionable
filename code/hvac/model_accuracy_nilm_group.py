@@ -18,9 +18,9 @@ from common_functions import latexify, format_axes
 
 NUM_CLASSES = 2
 
-output = OrderedDict()
+output ={}
 gt_confusion = np.array([[25, 9], [8, 16]])
-output["Submetered"] = {"Precision": 25.0 / 33, "Recall": 25.0 / 34, "Accuracy": 41.0 / 58}
+hart_confusion = np.array([[25, 9],[13,11]])
 
 
 def powerset(iterable, N_max):
@@ -36,23 +36,22 @@ def accuracy_multiclass(y_true, y_pred):
         out += confusion[i, i] * 1.0 / np.sum(confusion[i])
     return out / length
 
-def find_name(folder):
+def return_name(folder):
     algo_name = folder.split("_")[-1]
     algo_N = folder.split("_")[0][1]
     algo_K = folder.split("_")[1][1]
     if algo_name=="Hart":
-        return "Hart"
+        return "Hart", 2, 3
     else:
-        return algo_name+" (N= "+algo_N+", K= "+algo_K+")"
+        return algo_name, algo_N, algo_K
 
 
-to_consider = ["N2_K3_T50_CO", "N2_K4_T50_CO", "N2_K5_T50_CO","N2_K6_T50_CO"
-               "N3_K3_T50_CO", "N3_K4_T50_CO", "N3_K5_T50_CO","N3_K6_T50_CO"
-               "N4_K3_T50_CO", "N4_K4_T50_CO", "N4_K5_T50_CO","N4_K6_T50_CO",
-               "N2_K3_T50_FHMM", "N2_K4_T50_FHMM", "N2_K5_T50_FHMM","N2_K6_T50_FHMM"
-               "N3_K3_T50_FHMM", "N3_K4_T50_FHMM", "N3_K5_T50_FHMM","N3_K6_T50_FHMM"
-               "N4_K3_T50_FHMM", "N4_K4_T50_FHMM", "N4_K5_T50_FHMM","N4_K6_T50_FHMM"
-                ]
+to_consider = ["N2_K3_T50_CO", "N2_K4_T50_CO", "N2_K5_T50_CO",
+               "N3_K3_T50_CO", "N3_K4_T50_CO", "N3_K5_T50_CO",
+               "N4_K3_T50_CO", "N4_K4_T50_CO", "N4_K5_T50_CO",
+               "N2_K3_T50_FHMM","N2_K4_T50_FHMM","N2_K5_T50_FHMM",
+               "N3_K3_T50_FHMM","N3_K4_T50_FHMM","N3_K5_T50_FHMM",
+               "N4_K3_T50_FHMM","N4_K4_T50_FHMM","N4_K5_T50_FHMM"]
 
 for folder in to_consider:
     df = pd.read_csv("../../data/hvac/minutes_%s.csv" % folder)
@@ -79,13 +78,39 @@ for folder in to_consider:
     recall = 1.0 * a[0][0] / (a[0][0] + a[0][1])
     overall_accuracy = 1.0 * (a[0][0] + a[1][1]) / (np.sum(a))
 
-    algo_identifier = find_name(folder)
-    output[algo_identifier] = {"Precision": precision, "Recall": recall, "Accuracy": overall_accuracy}
+    algo, N, K = return_name(folder)
+    for metric in ["Precision", "Recall", "Accuracy"]:
+        if metric not in output:
+         output[metric] = {}
+
+    for metric in ["Precision", "Recall", "Accuracy"]:
+        if N not in output[metric]:
+                output[metric][N] = {}
+
+    for metric in ["Precision", "Recall", "Accuracy"]:
+        if K not in output[metric][N]:
+            output[metric][N][K] = {}
+    o_dict= {"Precision": precision, "Recall": recall, "Accuracy": overall_accuracy}
+
+    for metric in ["Precision", "Recall", "Accuracy"]:
+        output[metric][N][K][algo] = o_dict[metric]
+
+
+latexify(columns=2, fig_height=4.8)
+fig, ax = plt.subplots(nrows=3, ncols=3)
+
+for row_num, metric in enumerate(["Precision", "Recall", "Accuracy"]):
+    for col_num, num_states in enumerate(['2','3','4']):
+        df = pd.DataFrame(output[metric][num_states])
+        df.plot(kind="bar", ax=ax[row_num, col_num])
+
+plt.savefig(os.path.join(script_path, "../../figures/hvac/","hvac_feedback_nilm_aggregate.pdf"))
+plt.savefig(os.path.join(script_path, "../../figures/hvac/","hvac_feedback_nilm_aggregate.png"))
+
 """
 out_df = pd.DataFrame(output)
 #out_df.columns = ["Submetered", "CO (N=2, K=3)","CO (N=3, K=3)","CO (N=3, K=4)","FHMM (N=2, K=3)","FHMM (N=3, K=3)", "Hart"]
 
-latexify(columns=2, fig_height=2.6)
 ax = out_df.plot(kind="bar", rot=0)
 format_axes(ax)
 plt.tight_layout()

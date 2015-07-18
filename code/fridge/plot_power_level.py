@@ -28,10 +28,17 @@ for i, folder in enumerate(FOLDER_NAMES):
     algo_name = folder.split("_")[-1]
     dictionary_key = folder[:3]+algo_name
     N = folder[1]
+    gt = df["GT"].values
+    upper_bound = 1.1*gt
+    lower_bound = 0.9*gt
+    under_pred = (df[dictionary_key]<lower_bound).sum()
+    extra_pred = (df[dictionary_key]>upper_bound).sum()
     ax[i].scatter(df["GT"], df[dictionary_key],c='gray',alpha=0.5)
     ax[i].set_xlabel("GT power")
+    ax[i].plot(gt, upper_bound, color='black', alpha=0.6, linewidth=2)
+    ax[i].plot(gt, lower_bound, color='black', alpha=0.6, linewidth=2)
 
-    ax[i].set_title(r"%s N=%s" %(algo_name,N))
+    ax[i].set_title(r"%s N=%s" "\n Missed= %d, Extra= %d" %(algo_name,N, under_pred, extra_pred))
     format_axes(ax[i])
 ax[0].set_ylabel("Predicted power")
 plt.tight_layout()

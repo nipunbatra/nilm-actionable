@@ -3,10 +3,11 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-plt.style.use('ggplot')
 import pandas as pd
 from lmfit import minimize, Parameters, report_fit
 
+import sys
+sys.path.append("../common")
 
 def get_hourly_aggregate(df, how='mean'):
     df_c = df.copy()
@@ -217,12 +218,31 @@ energy_df = pd.DataFrame({"energy": energy})
 energy_hourly_mean_df = get_hourly_aggregate(energy_df)
 temp_hourly_mean_df = get_hourly_aggregate(hour_usage_df[["temperature"]])
 
-fig, ax = plt.subplots()
-plt.plot(data, label='actual')
-plt.plot(final, label='predicted')
-plt.legend()
-plt.xlabel("Hours")
-plt.ylabel("Energy in kWh")
+from common_functions import latexify, format_axes
+latexify(columns=1, fig_height=3.4)
+fig, ax = plt.subplots(nrows=2)
+ax[0].scatter(data, final)
+ax[0].set_xlabel("Actual energy consumption(kWh)\n(a)")
+ax[0].set_ylabel("Predicted energy\n consumption(kWh)")
+
+ax[1].plot(data[:24], label='Actual')
+ax[1].plot(final[:24], label='Predicted')
+#plt.fill_between(range(len(data[:24])), data[:24], 0, color='g', alpha=1, label='actual')
+#plt.fill_between(range(len(final[:24])), final[:24], 0, color='r', alpha=0.5, label='predicted')
+ax[1].legend(loc="upper center")
+ax[1].set_xlabel("Hours\n(b)")
+ax[1].set_ylabel("Energy (kWh)")
+
+format_axes(ax[0])
+format_axes(ax[1])
+plt.tight_layout()
+
+import os
+
+plt.savefig(os.path.expanduser("~/git/nilm-actionable/figures/hvac/model.pdf"))
+plt.savefig(os.path.expanduser("~/git/nilm-actionable/figures/hvac/model.png"))
+
+"""
 if SAVE:
     plt.savefig("pred_actual.png")
 fig, ax = plt.subplots(nrows=3, sharex=True)
@@ -241,3 +261,4 @@ ax[2].set_ylabel("Hourly mean temperature")
 plt.xlabel("Hour of day")
 if SAVE:
     plt.savefig("setpoint.png")
+"""

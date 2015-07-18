@@ -123,10 +123,13 @@ def fcn2min_time_fixed_binary(params, x, data):
 
 
 
-to_consider = ["N2_K3_T50_CO", "N2_K4_T50_CO", "N2_K5_T50_CO",
-               "N3_K3_T50_CO", "N3_K4_T50_CO", "N3_K5_T50_CO",
-               "N2_K3_T50_FHMM","N2_K4_T50_FHMM","N2_K5_T50_FHMM",
-               "N3_K3_T50_FHMM","N3_K4_T50_FHMM","N3_K5_T50_FHMM",
+to_consider = ["N2_K3_T50_CO", "N2_K4_T50_CO", "N2_K5_T50_CO","N2_K6_T50_CO",
+               "N3_K3_T50_CO", "N3_K4_T50_CO", "N3_K5_T50_CO","N3_K6_T50_CO",
+               "N4_K3_T50_CO", "N4_K4_T50_CO", "N4_K5_T50_CO","N4_K6_T50_CO",
+               
+               "N2_K3_T50_FHMM", "N2_K4_T50_FHMM", "N2_K5_T50_FHMM","N2_K6_T50_FHMM",
+               "N3_K3_T50_FHMM", "N3_K4_T50_FHMM", "N3_K5_T50_FHMM","N3_K6_T50_FHMM",
+               "N4_K3_T50_FHMM", "N4_K4_T50_FHMM", "N4_K5_T50_FHMM","N4_K6_T50_FHMM",
                "N2_K3_T50_Hart" ]
 
 script_path = os.path.dirname(os.path.realpath(__file__))
