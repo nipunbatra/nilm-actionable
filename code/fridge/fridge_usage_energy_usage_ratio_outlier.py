@@ -35,11 +35,10 @@ classifiers = {
     "robust covariance estimator": EllipticEnvelope(contamination=.1)}
 
 # Compare given classifiers under given settings
-xx, yy = np.meshgrid(np.linspace(X.min()-0.1, X.max()+0.1, 500), np.linspace(Y.min()-5, Y.max()+5, 500))
+xx, yy = np.meshgrid(np.linspace(0,1, 1000), np.linspace(0,100, 1000))
 n_inliers = int((1. - outliers_fraction) * n_samples)
 n_outliers = int(outliers_fraction * n_samples)
 
-plt.clf()
 latexify()
 # Fit the problem with varying cluster separation
 np.random.seed(42)
@@ -63,59 +62,55 @@ subplot = plt.subplot(1, 1,  1)
 subplot.contourf(xx, yy, Z, levels=np.linspace(Z.min(), threshold, 7),
                  cmap=plt.cm.Blues_r)
 a = subplot.contour(xx, yy, Z, levels=[threshold],
-                    linewidths=2, colors='red')
-subplot.contourf(xx, yy, Z, levels=[threshold, Z.max()],
-                 colors='orange')
-b = subplot.scatter(XY[:-n_outliers, 0], XY[:-n_outliers, 1], c='white')
-c = subplot.scatter(XY[-n_outliers:, 0], XY[-n_outliers:, 1], c='white')
-subplot.axis('tight')
-subplot.legend(
-    [a.collections[0]],
-    ['Learned decision function'], loc=4)
-#subplot.set_xlabel("%d. %s (errors: %d)" % (1, "rob", n_errors))
-subplot.set_xlim((X.min(), X.max()))
-subplot.set_ylim((Y.min(), Y.max()))
-plt.axhspan(df["usage_percentage"].median(), df["usage_percentage"].median())
-plt.axvspan(df["usage proportion"].median(), df["usage proportion"].median())
+                    linewidths=0.6, colors='black')
 
+df_outlier = df[~y_pred]
+df_feedback = df_outlier[(df_outlier["usage proportion"]>df["usage proportion"].median())
+                & (df_outlier["usage_percentage"]>df["usage_percentage"].median())]
+subplot.scatter(df_feedback["usage proportion"], df_feedback["usage_percentage"], c='red',alpha=0.7)
+
+df_outlier_no_feedback = df_outlier[(df_outlier["usage proportion"]<=df["usage proportion"].median())
+                & (df_outlier["usage_percentage"]<=df["usage_percentage"].median())]
+
+subplot.scatter(df_outlier_no_feedback["usage proportion"],
+                df_outlier_no_feedback["usage_percentage"], c='gray',alpha=0.4)
+
+df_non_outlier = df[y_pred]
+
+subplot.scatter(df_non_outlier["usage proportion"],
+                df_non_outlier["usage_percentage"], c='gray',alpha=0.4)
+
+
+
+#subplot.contourf(xx, yy, Z, levels=[threshold, Z.max()],
+#                 colors='orange')
+#b = subplot.scatter(XY[:-n_outliers, 0], XY[:-n_outliers, 1], c='red')
+#c = subplot.scatter(XY[-n_outliers:, 0], XY[-n_outliers:, 1], c='white')
+#c = subplot.scatter(XY[-n_outliers:, 0], XY[-n_outliers:, 1], c='red')
+subplot.axis('tight')
+#subplot.legend(
+#    [a.collections[0]],
+#    ['Learned decision function'], loc=4)
+#subplot.set_xlabel("%d. %s (errors: %d)" % (1, "rob", n_errors))
+subplot.set_xlim((0,1))
+subplot.set_ylim((0,100))
+#plt.axhspan(df["usage_percentage"].median(), df["usage_percentage"].median())
+#plt.axvspan(df["usage proportion"].median(), df["usage proportion"].median())
 #plt.subplots_adjust(0.04, 0.1, 0.96, 0.94, 0.1, 0.26)
 format_axes(plt.gca())
 plt.xlabel("Proportion of usage cycles")
 plt.ylabel(r"Usage energy $\%$")
 ylims = plt.ylim()
-plt.ylim((ylims[0]-5, ylims[1]+5))
+#plt.ylim((ylims[0]-5, ylims[1]+5))
 xlims = plt.xlim()
-plt.xlim((xlims[0]-0.1, xlims[1]+0.1))
+#plt.xlim((xlims[0]-0.1, xlims[1]+0.1))
 plt.tight_layout()
-#plt.savefig("../../figures/fridge/usage_energy_ratio.png")
-#plt.savefig("../../figures/fridge/usage_energy_ratio.pdf")
+plt.savefig("../../figures/fridge/usage_energy_ratio.png")
+plt.savefig("../../figures/fridge/usage_energy_ratio.pdf")
 #plt.show()
+
+
 
 e = df[df.usage_percentage.isin(XY[-n_outliers:, 1])]
 feedback_homes = e[e.usage_percentage>df.usage_percentage.median()]["home"].values
 
-"""
-plt.clf()
-latexify()
-plt.scatter(df["usage proportion"].values, df["usage_percentage"].values)
-plt.axhspan(df["usage_percentage"].median(), df["usage_percentage"].median())
-plt.annotate(r'Median usage energy $\%$', xy=(0.05, df["usage_percentage"].median()), xytext=(0.05,15 ),
-            arrowprops=dict(facecolor='black', shrink=0.05,  width=0.2, headwidth=1),
-            )
-plt.axhspan(df["usage_percentage"].median()+10, df["usage_percentage"].median()+10)
-
-plt.annotate(r'10 $\%$ more'"\n"  'usage than median', xy=(0.5, df["usage_percentage"].median()+10), xytext=(0.5, df["usage_percentage"].median()+15),
-            arrowprops=dict(facecolor='black', shrink=0.05, width=0.2, headwidth=1),
-            )
-format_axes(plt.gca())
-plt.xlabel("Proportion of cycles affected by usage")
-plt.ylabel(r"Usage energy $\%$")
-plt.tight_layout()
-plt.savefig("../../figures/fridge/usage_energy_ratio.png")
-plt.savefig("../../figures/fridge/usage_energy_ratio.pdf")
-
-
-med = df.usage_percentage.median()
-feedback_median = df.usage_percentage[(df.usage_percentage<med+10)&(df.usage_percentage>med)]
-feedback_more_than_10 = df.usage_percentage[(df.usage_percentage>med+10)]
-"""

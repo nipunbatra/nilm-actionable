@@ -80,7 +80,6 @@ for folder in to_consider:
 
     print folder
     print accur
-    print pd.value_counts(pred_labels)
     print confusion_matrix(true_labels, pred_labels)
     a = confusion_matrix(true_labels, pred_labels)
 
@@ -108,7 +107,7 @@ gt["Precision"], gt["Recall"], gt["Accuracy"] = find_p_r_a(gt_confusion)
 hart["Precision"], hart["Recall"], hart["Accuracy"] = find_p_r_a(hart_confusion)
 
 
-#latexify(columns=2, fig_height=4.2)
+latexify(columns=2, fig_height=4.8)
 fig, ax = plt.subplots(nrows=3, ncols=3, sharey=True, sharex=True)
 
 for row_num, metric in enumerate(["Precision", "Recall", "Accuracy"]):
@@ -118,7 +117,7 @@ for row_num, metric in enumerate(["Precision", "Recall", "Accuracy"]):
         format_axes(ax[row_num, col_num])
         ax[row_num, col_num].axhline(y=gt[metric], linestyle="-",color='black', label="Submetered")
         ax[row_num, col_num].axhline(y=hart[metric], linestyle="--",color='red', label="Hart")
-        ax[-1, col_num].set_xlabel("Top-K")
+        ax[row_num, col_num].set_xlabel("Top-K")
         ax[0, col_num].set_title("N=%s" %num_states)
     ax[row_num,0].set_ylabel(metric)
 
@@ -126,15 +125,15 @@ co_patch = mpatches.Patch(color='blue', label='CO')
 fhmm_patch =  mpatches.Patch(color='green', label='FHMM')
 submetered_patch =  mpatches.Patch(color='black', label='Submetered', lw='0.2')
 hart_patch = mpatches.Patch(color='red', label='Hart',lw='0.6')
+plt.tight_layout()
 
-fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1),
           ncol=4,handles=[co_patch, fhmm_patch, submetered_patch, hart_patch],
            labels=["CO","FHMM","Submetered","Hart"])
 
-plt.savefig(os.path.join(script_path, "../../figures/hvac/","hvac_feedback_nilm_aggregate.pdf"),
-            bbox_inches="tight")
-plt.savefig(os.path.join(script_path, "../../figures/hvac/","hvac_feedback_nilm_aggregate.png"),
-            bbox_inches="tight")
+fig.tight_layout()
+plt.savefig(os.path.join(script_path, "../../figures/hvac/","hvac_feedback_nilm_aggregate.pdf"))
+plt.savefig(os.path.join(script_path, "../../figures/hvac/","hvac_feedback_nilm_aggregate.png"))
 
 """
 out_df = pd.DataFrame(output)

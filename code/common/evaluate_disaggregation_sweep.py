@@ -4,10 +4,12 @@ from sklearn.metrics import f1_score, mean_absolute_error
 import os
 import matplotlib.pyplot as plt
 import sys
+import matplotlib.patches as mpatches
 
 appliance = sys.argv[1]
 
 RESULTS_PATH = os.path.expanduser("~/git/nilm-actionable/code/bash_runs_%s" %appliance)
+script_path = os.path.dirname(os.path.realpath(__file__))
 
 import sys
 sys.path.append("../common")
@@ -133,6 +135,68 @@ def variation_in_num_states(out, K=5, train_fraction=50):
             for algo, val in metric_results.iteritems():
                 o[metric][num_states][algo] = np.mean(o[metric][num_states][algo])
     return o
+
+def plot_overall(out):
+    latexify(columns=2, fig_height=3.9)
+    fig, ax = plt.subplots(nrows=3, ncols=3, sharex=True)
+    output = {}
+    for N in range(2,5):
+        output[N] = variation_in_top_k(out, num_states=N)
+
+        for row, metric in enumerate(["f_score", "error energy", "mae power"]):
+            df = pd.DataFrame(output[N][metric]).T
+            if metric=="error energy":
+                df=df.mul(100)
+
+
+            df[["CO", "FHMM"]].plot(kind="bar", ax=ax[row, N-2], rot=0, legend=False)
+            ax[row, N-2].axhline(y=df["Hart"].median(), linestyle="-",color='red', label="Hart")
+
+            format_axes(ax[row, N-2])
+    ylims = {"hvac":
+                 {
+                     0: (0, 1.1),
+                     1: (0, 40),
+                     2: (0, 500)
+                 },
+        "fridge":
+            {
+                0:(0, 0.8),
+                1:(0, 140),
+                2:(0, 140)
+            }
+    }
+    for i in range(3):
+        ax[0,i].set_ylim(ylims[appliance][0])
+    for i in range(3):
+        ax[1,i].set_ylim(ylims[appliance][1])
+    for i in range(3):
+        ax[2,i].set_ylim(ylims[appliance][2])
+    for i in range(3):
+        ax[-1,i].set_xlabel("Top-K")
+        ax[0,i].set_title("N=%d" %(i+2))
+
+    ax[0,0].set_ylabel("F score\n (Higher is better)")
+    ax[1,0].set_ylabel(r"\% Error" "\n" "in Energy" "\n" "(Lower is better)")
+    ax[2,0].set_ylabel("Mean absolute error\n in power (W)\n (Lower is better)")
+
+    co_patch = mpatches.Patch(color='blue', label='CO')
+    fhmm_patch =  mpatches.Patch(color='green', label='FHMM')
+    hart_patch = mpatches.Patch(color='red', label='Hart',)
+    fig.tight_layout()
+    fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+          ncol=4,handles=[co_patch, fhmm_patch, hart_patch],
+           labels=["CO","FHMM","Hart"])
+
+    plt.savefig(os.path.join(script_path, "../../figures/%s/%s_accuracy_nilm.pdf" %(appliance, appliance) ),
+                bbox_inches="tight")
+
+
+
+
+
+
+
 
 def plot_variation_num_states(o):
     latexify(fig_height=3.6)

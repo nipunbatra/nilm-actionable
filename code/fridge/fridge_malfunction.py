@@ -4,11 +4,11 @@ import sys
 sys.path.append("../common")
 import matplotlib.pyplot as plt
 from collections import OrderedDict
-
+import matplotlib.patches as mpatches
 from common_functions import latexify, format_axes
 latexify(fig_height=3)
 
-fig, ax = plt.subplots(nrows=2)
+fig, ax = plt.subplots(nrows=2, sharex=True)
 wiki_malfunction = {
     "Frigidaire\n frt18nrjw1": [[139, 160], [188, 255]],
     "Samsung \n rf266abrs": [[107, 141], [130, 162]],
@@ -31,11 +31,14 @@ rice_malfunction = OrderedDict({
 })
 
 
+colors = ["purple","g","b","magenta","gray"]
+fridge_labels =wiki_malfunction.keys()
+fridge_labels.append("Rice Hall (Name?)")
 def plot_malfunction(malfunction_dict, ax, title):
-    for fridge_name, fridge_pair_powers in malfunction_dict.iteritems():
+    for i, (fridge_name, fridge_pair_powers) in enumerate(malfunction_dict.items()):
         xs = [fridge_pair_powers[0][0], fridge_pair_powers[1][0]]
         ys = [fridge_pair_powers[0][1], fridge_pair_powers[1][1]]
-        ax.plot(xs, ys, label=fridge_name, marker='.')
+        ax.scatter(xs, ys, label=fridge_name, marker='.',alpha=0)
         print fridge_name
         print xs
         print ys
@@ -45,36 +48,68 @@ def plot_malfunction(malfunction_dict, ax, title):
         x_start, dx  = xs[1], xs[0]-xs[1]
         y_start, dy = ys[1], ys[0]-ys[1]
         print x_start, dx, y_start, dy
-        #ax.arrow(xs[1], ys[1], xs[0]-xs[1], ys[0]-ys[1], head_width=0.05, head_length=0.1, fc='k', ec='k')
-        #ax.annotate(percent_savings[fridge_name], xy=(x, y), xytext=(x, y),
+        ax.arrow(xs[1], ys[1], xs[0]-xs[1], ys[0]-ys[1],
+                 head_width=10, head_length=10, fc=colors[i], ec=colors[i], lw=2)
+        #  ax.annotate(percent_savings[fridge_name], xy=(x, y), xytext=(x, y),
         #            )
-    ax.set_ylabel("Transient power (W)")
+    #ax.set_ylabel("Transient power (W)")
 
-    ax.set_title(title)
+    #ax.set_title(title)
     format_axes(ax)
 
 
 
-plot_malfunction(wiki_malfunction, ax[0], "WikiEnergy data set")
+plot_malfunction(wiki_malfunction, ax[1], "WikiEnergy data set")
+ax[1].set_ylim(70,280) # outliers only
+ax[0].set_ylim(1250,1430)
 
-colors = ["b", "r", "g", "k"]
+ax[0].scatter([111], [1303],alpha=0)
+ax[1].scatter([80],[105],alpha=0)
+
+format_axes(ax[1])
+format_axes(ax[0])
+
+ax[0].spines['top'].set_visible(False)
+ax[0].spines['bottom'].set_visible(False)
+ax[1].spines['top'].set_visible(False)
+ax[0].xaxis.tick_top()
+ax[0].tick_params(labeltop='off') # don't put tick labels at the top
+#ax[1].xaxis.tick_bottom()
+
 for i, (fridge_floor, fridge_power) in enumerate(rice_malfunction.iteritems()):
     print fridge_power
-    ax[1].scatter([fridge_power[0]], [fridge_power[1]], label=fridge_floor, color=colors[i])
+    ax[0].scatter([fridge_power[0]], [fridge_power[1]], label=fridge_floor, color=colors[i],alpha=0)
 
 ax[1].set_xlabel("Steady state power (W)")
-ax[1].set_title("Rice Hall")
-ax[1].set_ylabel("Transient power (W)")
-format_axes(ax[1])
+#ax[1].set_title("Rice Hall")
+fig.text(-0.01, 0.5, 'Transient Power (W)', va='center', rotation='vertical')
 
-plt.tight_layout()
 
-for a in ax:
-    box = a.get_position()
-    a.set_position([box.x0, box.y0, box.width * 0.66, box.height])
+ax[0].arrow(110,1300,-30,-250,
+                 head_width=10, head_length=10, fc="gray", ec="gray", lw=2)
+ax[1].arrow(110,400,-30,-300,
+                 head_width=10, head_length=10, fc="gray", ec="gray", lw=2)
 
-    # Put a legend to the right of the current axis
-    a.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+d = .015 # how big to make the diagonal lines in axes coordinates
+# arguments to pass plot, just so we don't keep repeating them
+kwargs = dict(transform=ax[0].transAxes, color='k', clip_on=False)
+ax[0].plot((-d,+d),(-d,+d), **kwargs)      # top-left diagonal
+ax[0].plot((1-d,1+d),(-d,+d), **kwargs)    # top-right diagonal
+
+kwargs.update(transform=ax[1].transAxes)  # switch to the bottom axes
+ax[1].plot((-d,+d),(1-d,1+d), **kwargs)   # bottom-left diagonal
+ax[1].plot((1-d,1+d),(1-d,1+d), **kwargs) # bottom-right diagonal
+
+fig.tight_layout()
+
+patches = []
+for color, label in zip(colors, fridge_labels):
+    patches.append(mpatches.Patch(color=color, label=label))
+
+fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
+      ncol=2,handles=patches,
+       labels=fridge_labels)
+
 
 plt.savefig("../../figures/fridge/identical_fridge.pdf", bbox_inches="tight")
 plt.savefig("../../figures/fridge/identical_fridge.png", bbox_inches="tight")

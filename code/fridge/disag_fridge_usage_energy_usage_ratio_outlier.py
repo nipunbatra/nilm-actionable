@@ -14,7 +14,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 
 DATA_PATH = os.path.join(script_path, "..","..","data/fridge")
 
-submetered_homes_feedback = np.array([142, 144, 146, 151, 152, 155, 157, 159, 163, 167, 169, 170])
+submetered_homes_feedback = np.array([ 18,  46,  51,  54,  59,  68,  76,  87, 106, 112, 116, 123, 170])
 
 latexify(columns=2, fig_height=2.8)
 algo_total = ["N2_K3_CO","N2_K4_CO","N2_K3_FHMM","N2_K4_FHMM", "N2_K3_Hart"]
