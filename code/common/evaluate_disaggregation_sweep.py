@@ -41,7 +41,7 @@ def mse(df, algo_name):
     out = {}
     x = df[["GT"]].values
     y = df[[algo_name]].values
-    return mean_squared_error(x, y)
+    return np.sqrt(mean_squared_error(x, y))
 
 def mae(df, algo_name):
     out = {}
@@ -122,7 +122,7 @@ def variation_in_num_states(out, K=5, train_fraction=50):
         for num_states in out.keys():
             o[metric][num_states] = {}
             for algo in ["FHMM", "Hart", "CO"]:
-                o[metric][num_states][algo] = []    
+                o[metric][num_states][algo] = []
     for num_states in out.keys():
         if K not in out[num_states]:
             K = str(K)
