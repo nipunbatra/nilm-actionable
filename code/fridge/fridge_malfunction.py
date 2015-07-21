@@ -45,11 +45,11 @@ def plot_malfunction(malfunction_dict, ax, title):
 
         x = (fridge_pair_powers[0][0] + fridge_pair_powers[1][0])/2
         y = (fridge_pair_powers[0][1] + fridge_pair_powers[1][1])/2
-        x_start, dx  = xs[1], xs[0]-xs[1]
-        y_start, dy = ys[1], ys[0]-ys[1]
+        x_start, dx  = xs[0], xs[1]-xs[0]
+        y_start, dy = ys[0], ys[1]-ys[0]
         print x_start, dx, y_start, dy
-        ax.arrow(xs[1], ys[1], xs[0]-xs[1], ys[0]-ys[1],
-                 head_width=10, head_length=10, fc=colors[i], ec=colors[i], lw=2)
+        ax.arrow(x_start, y_start, dx, dy,
+                 head_width=5, head_length=10, fc=colors[i], ec=colors[i], lw=0.7)
         #  ax.annotate(percent_savings[fridge_name], xy=(x, y), xytext=(x, y),
         #            )
     #ax.set_ylabel("Transient power (W)")
@@ -85,10 +85,10 @@ ax[1].set_xlabel("Steady state power (W)")
 fig.text(-0.01, 0.5, 'Transient Power (W)', va='center', rotation='vertical')
 
 
-ax[0].arrow(110,1300,-30,-250,
-                 head_width=10, head_length=10, fc="gray", ec="gray", lw=2)
-ax[1].arrow(110,400,-30,-300,
-                 head_width=10, head_length=10, fc="gray", ec="gray", lw=2)
+ax[0].arrow(80,1100,30,200,
+                 head_width=5, head_length=10, fc="gray", ec="gray", lw=0.7)
+ax[1].arrow(80,100,30,300,
+                 head_width=5, head_length=10, fc="gray", ec="gray", lw=0.7)
 
 d = .015 # how big to make the diagonal lines in axes coordinates
 # arguments to pass plot, just so we don't keep repeating them

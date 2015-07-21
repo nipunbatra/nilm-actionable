@@ -15,7 +15,8 @@ import scipy.interpolate as inter
 import sys
 sys.path.append("../common")
 script_path = os.path.dirname(os.path.realpath(__file__))
-
+import seaborn as sns
+sns.set()
 from common_functions import latexify, format_axes
 
 NUM_CLASSES = 2
@@ -31,8 +32,8 @@ x_num = 5
 xpos = np.linspace(0, 1, x_num)
 
 
-latexify(columns=2)
-fig, ax = plt.subplots(ncols=2, nrows=2,sharex=True, sharey=True)
+latexify(columns=2, fig_height=1.8)
+fig, ax = plt.subplots(ncols=4, sharey=True)
 
 
 def powerset(iterable, N_max):
@@ -69,6 +70,8 @@ to_consider = [
                "N2_K3_T50_FHMM",
                 "N2_K3_T50_Hart"
                ]
+cbar_ax = fig.add_axes([.91, .2, .01, .6])
+
 
 for plot_num, folder in enumerate(to_consider):
     df = pd.read_csv("../../data/hvac/minutes_%s.csv" % folder)
@@ -94,44 +97,18 @@ for plot_num, folder in enumerate(to_consider):
     print folder
     print accur
     print pd.value_counts(pred_labels)
-    print confusion_matrix(true_labels, pred_labels)
-    for i, column in enumerate(df[f]):
-        ax[plot_num/2][plot_num%2].scatter(xpos[i]*np.ones(len(df)),df[column],alpha=0)
+    confusion_df = pd.DataFrame(confusion_matrix(true_labels, pred_labels),
+                                index=["Feedback", "No Feedback"],columns=["Feedback", "No Feedback"])
+    sns.heatmap(confusion_df, annot=True, fmt="d", linewidths=.5,ax=ax[plot_num%4],cbar=plot_num == 0,
+                cbar_ax=None if plot_num else cbar_ax)
+    ax[plot_num%4].set_title(return_name(folder)[0])
+    #ax[plot_num%4].set_xlabel("Predicted labels")
+ax[0].set_ylabel("True labels")
 
-    x = xpos
-    mapping = {"Bad":{"color":"red", "value":0},
-           "Not bad":{"color":"green","value":1}}
+fig.tight_layout(rect=[0, 0, .9, 1])
+fig.text(0.5, 0.0, 'Predicted labels', ha='center')
 
-    for i in range(len(df)):
-        y_df = df.ix[i]
-        y = df.ix[i][f].values.astype(float)
-        y = np.append(y, mapping[pred_labels[i]]["value"])
-        s1 = inter.InterpolatedUnivariateSpline (x, y,k=4)
-
-        ax[plot_num/2,plot_num%2].plot(np.linspace(0, 1, 1000), s1(np.linspace(0, 1, 1000)), alpha=0.5, color=mapping[y_df["hvac_class"]]["color"],zorder=mapping[y_df["hvac_class"]]["value"]*20)
-    algo, N, K = return_name(folder)
-
-    for x in xpos:
-        ax[plot_num/2,plot_num%2].axvspan(xmin=x,xmax=x,ymin=0,ymax=1,color="white",alpha=0.5)
-    a = confusion_matrix(true_labels, pred_labels)
-    fn = a[0,1]
-    fp = a[1,0]
-    ax[plot_num/2,plot_num%2].set_title(algo+"\nFP= %d, FN= %d" %(fp, fn))
-    format_axes(ax[plot_num/2][plot_num%2])
-    ax[plot_num/2,plot_num%2].set_xticks(xpos)
-    ax[plot_num/2,plot_num%2].set_yticks([0,1])
-    ax[plot_num/2,plot_num%2].set_axis_bgcolor('black')
-
-ax[1,0].set_xticklabels(map(lambda x:x.replace("_","\n"),f))
-ax[1,1].set_xticklabels(map(lambda x:x.replace("_","\n"),f))
-
-ax[0,0].set_yticklabels(["Feedback", "No feedback"], rotation=90)
-ax[1,0].set_yticklabels(["Feedback", "No feedback"], rotation=90)
-
-
-
-plt.tight_layout()
-plt.savefig(os.path.expanduser("~/git/nilm-actionable/figures/hvac/hvac_feedback_spline.pdf"),bbox_inches="tight")
+plt.savefig(os.path.expanduser("~/git/nilm-actionable/figures/hvac/hvac_feedback_confusion.pdf"),bbox_inches="tight")
 plt.show()
 
 """

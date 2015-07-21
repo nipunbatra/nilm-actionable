@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.metrics import f1_score, mean_absolute_error
+from sklearn.metrics import f1_score, mean_absolute_error, mean_squared_error
 import os
 import matplotlib.pyplot as plt
 import sys
@@ -37,6 +37,11 @@ def mne(df, algo_name):
     algo_energy = y.sum().values[0]
     return np.abs(algo_energy - gt_energy) / gt_energy
 
+def mse(df, algo_name):
+    out = {}
+    x = df[["GT"]].values
+    y = df[[algo_name]].values
+    return mean_squared_error(x, y)
 
 def mae(df, algo_name):
     out = {}
@@ -45,9 +50,14 @@ def mae(df, algo_name):
     return mean_absolute_error(x, y)
 
 
-metrics = {"mae power": mae,
+metrics = {"rmse power": mse,
            "error energy": mne,
            "f_score": f_score}
+
+
+#metrics = {"mae power": mae,
+#           "error energy": mne,
+#           "f_score": f_score}
 
 import json
 
@@ -106,13 +116,13 @@ def variation_in_num_states(out, K=5, train_fraction=50):
 
     o = {}
 
-    for metric in ["f_score", "error energy", "mae power"]:
+    for metric in ["f_score", "error energy", "rmse power"]:
 
         o[metric] = {}
         for num_states in out.keys():
             o[metric][num_states] = {}
             for algo in ["FHMM", "Hart", "CO"]:
-                o[metric][num_states][algo] = []
+                o[metric][num_states][algo] = []    
     for num_states in out.keys():
         if K not in out[num_states]:
             K = str(K)

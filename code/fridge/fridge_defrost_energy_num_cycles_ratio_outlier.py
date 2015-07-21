@@ -8,10 +8,6 @@ from nilmtk import DataSet
 import nilmtk
 import pandas as pd
 
-warnings.filterwarnings("ignore")
-
-ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
-fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
 
 df = pd.read_csv("../../data/fridge/usage_defrost_cycles.csv")
 df["days"] = df["total_mins"] / 1440.0
@@ -61,31 +57,49 @@ y_pred = y_pred > threshold
 Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 subplot = plt.subplot(1, 1, 1)
-subplot.contourf(xx, yy, Z, levels=np.linspace(Z.min(), threshold, 7),
-                 cmap=plt.cm.Blues_r)
+#subplot.contourf(xx, yy, Z, levels=np.linspace(Z.min(), threshold, 7),
+#                 cmap=plt.cm.Blues_r)
+#a = subplot.contour(xx, yy, Z, levels=[threshold],
+#                    linewidths=2, colors='red')
+#subplot.contourf(xx, yy, Z, levels=[threshold, Z.max()],
+#                 colors='orange')
 a = subplot.contour(xx, yy, Z, levels=[threshold],
-                    linewidths=2, colors='red')
-subplot.contourf(xx, yy, Z, levels=[threshold, Z.max()],
-                 colors='orange')
-b = subplot.scatter(XY[:-n_outliers, 0], XY[:-n_outliers, 1], c='white')
-c = subplot.scatter(XY[-n_outliers:, 0], XY[-n_outliers:, 1], c='white')
-subplot.axis('tight')
-subplot.legend(
-    [a.collections[0]],
-    ['Learned decision function'], loc=4)
-subplot.set_xlim((X.min(), X.max()))
-subplot.set_ylim((Y.min(), Y.max()))
-plt.axhspan(df["defrost_percentage"].median(), df["defrost_percentage"].median())
-plt.axvspan(df["num_defrost_per_day"].median(), df["num_defrost_per_day"].median())
+                        linewidths=0.5, colors='black',zorder=4)
 
+df_outlier = df[~y_pred]
+df_feedback = df_outlier[(df_outlier["num_defrost_per_day"]>df["num_defrost_per_day"].median())
+                    & (df_outlier["defrost_percentage"]>df["defrost_percentage"].median())]
+
+df_regular = df[y_pred]
+
+df_outlier_no_feedback = df_outlier[(df_outlier["num_defrost_per_day"]<=df["num_defrost_per_day"].median())
+                    | (df_outlier["defrost_percentage"]<=df["defrost_percentage"].median())]
+subplot.scatter(df_regular["num_defrost_per_day"],
+                    df_regular["defrost_percentage"],
+                    c='gray',alpha=0.6,zorder=0,lw=0.2)
+
+subplot.scatter(df_outlier_no_feedback["num_defrost_per_day"],
+                    df_outlier_no_feedback["defrost_percentage"],
+                    c='gray',alpha=0.6,zorder=0,lw=0.2)
+
+subplot.scatter(df_feedback["num_defrost_per_day"],
+                    df_feedback["defrost_percentage"],
+                    c='red',alpha=0.6,zorder=5,lw=0.2)
+subplot.axis('tight')
+
+subplot.set_xlim((-0.1,2.6))
+subplot.set_ylim((0,40))
+med_x = df["num_defrost_per_day"].median()
+plt.axhspan(df["defrost_percentage"].median(), df["defrost_percentage"].median(),alpha=0.5,lw=0.2)
+plt.axvspan(med_x, df["num_defrost_per_day"].median(),alpha=0.5,lw=0.2)
+plt.axhspan(ymin=df["defrost_percentage"].median(), ymax=40,xmin=0.25,facecolor='green',edgecolor='green',alpha=0.07)
+#plt.axhspan(ymin=df["defrost_percentage"].median(), ymax=40,xmin=med_x,facecolor='green',edgecolor='green',alpha=0.07)
+plt.axvspan(xmin=df["num_defrost_per_day"].median(), xmax=2.6,ymin=df["defrost_percentage"].median(),ymax=40,facecolor='green',edgecolor='green',alpha=0.07)
 # plt.subplots_adjust(0.04, 0.1, 0.96, 0.94, 0.1, 0.26)
 format_axes(plt.gca())
 plt.xlabel("Number of defrost cycles per day")
 plt.ylabel(r"Defrost energy $\%$")
-ylims = plt.ylim()
-plt.ylim((ylims[0] - 5, ylims[1] + 5))
-xlims = plt.xlim()
-plt.xlim((xlims[0] - 0.3, xlims[1] + 0.1))
+
 plt.tight_layout()
 
 plt.savefig("../../figures/fridge/defrost_energy_cycles.png")

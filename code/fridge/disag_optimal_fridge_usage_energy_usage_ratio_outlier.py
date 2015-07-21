@@ -85,7 +85,7 @@ for i, (algo_name, algo_path) in enumerate(path_dict.iteritems()):
     #subplot.contourf(xx, yy, Z, levels=np.linspace(Z.min(), threshold, 7),
     #                  cmap=plt.cm.Blues_r)
     a = subplot.contour(xx, yy, Z, levels=[threshold],
-                        linewidths=1, colors='black',zorder=4)
+                        linewidths=0.5, colors='black',zorder=4)
 
     df_outlier = df[~y_pred]
     df_feedback = df_outlier[(df_outlier["usage proportion"]>df["usage proportion"].median())
@@ -99,21 +99,23 @@ for i, (algo_name, algo_path) in enumerate(path_dict.iteritems()):
     df_feedback_fp = df_feedback[~df_feedback.home.isin(submetered_homes_feedback)]
 
     subplot.scatter(df_feedback_fp["usage proportion"],
-                    df_feedback_fp["usage_percentage"], c='blue',alpha=0.6)
+                    df_feedback_fp["usage_percentage"], c='gray',alpha=0.6,lw=0.2)
 
     df_outlier_no_feedback = df_outlier[(df_outlier["usage proportion"]<=df["usage proportion"].median())
                     & (df_outlier["usage_percentage"]<=df["usage_percentage"].median())]
 
     subplot.scatter(df_outlier_no_feedback["usage proportion"],
-                    df_outlier_no_feedback["usage_percentage"], c='blue',alpha=0.6)
+                    df_outlier_no_feedback["usage_percentage"], c='gray',alpha=0.6,lw=0.2)
 
     df_non_outlier = df[y_pred]
 
     subplot.scatter(df_non_outlier["usage proportion"],
-                    df_non_outlier["usage_percentage"], c='blue',alpha=0.6)
+                    df_non_outlier["usage_percentage"], c='gray',alpha=0.6,lw=0.2)
 
 
-    subplot.scatter(true_df_feedback["usage proportion"], true_df_feedback["usage_percentage"], c='red',alpha=0.9,zorder=5)
+    subplot.scatter(true_df_feedback["usage proportion"],
+                    true_df_feedback["usage_percentage"],
+                    c='red',alpha=0.6,zorder=5,lw=0.2)
 
 
     subplot.axis('tight')
@@ -122,10 +124,10 @@ for i, (algo_name, algo_path) in enumerate(path_dict.iteritems()):
     subplot.set_ylim((0,100))
 
     format_axes(ax[i])
-    ax[i].axhspan(df["usage_percentage"].median(), df["usage_percentage"].median(), alpha=0.5)
-    ax[i].axvspan(df["usage proportion"].median(), df["usage proportion"].median(), alpha=0.5)
-    ax[i].axhspan(ymin=df["usage_percentage"].median(), ymax=100,xmin=df["usage proportion"].median(),facecolor='green',edgecolor='green',alpha=0.1)
-    ax[i].axvspan(xmin=df["usage proportion"].median(), xmax=1,ymin=df["usage_percentage"].median(),facecolor='green',edgecolor='green',alpha=0.1)
+    ax[i].axhspan(df["usage_percentage"].median(), df["usage_percentage"].median(), alpha=0.5,lw=0.2)
+    ax[i].axvspan(df["usage proportion"].median(), df["usage proportion"].median(), alpha=0.5,lw=0.2)
+    ax[i].axhspan(ymin=df["usage_percentage"].median(), ymax=100,xmin=df["usage proportion"].median(),facecolor='green',edgecolor='green',alpha=0.07)
+    ax[i].axvspan(xmin=df["usage proportion"].median(), xmax=1,ymin=df["usage_percentage"].median(),facecolor='green',edgecolor='green',alpha=0.07)
 
     ax[i].set_xlabel("Proportion of usage cycles")
     #ax[i].set_title(algo_name)
