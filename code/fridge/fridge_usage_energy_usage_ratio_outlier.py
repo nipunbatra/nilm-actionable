@@ -39,7 +39,7 @@ xx, yy = np.meshgrid(np.linspace(0,1, 1000), np.linspace(0,100, 1000))
 n_inliers = int((1. - outliers_fraction) * n_samples)
 n_outliers = int(outliers_fraction * n_samples)
 
-latexify()
+latexify(fig_height=1.5)
 # Fit the problem with varying cluster separation
 np.random.seed(42)
 # Data generation
@@ -59,54 +59,46 @@ y_pred = y_pred > threshold
 Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 subplot = plt.subplot(1, 1,  1)
-subplot.contourf(xx, yy, Z, levels=np.linspace(Z.min(), threshold, 7),
-                 cmap=plt.cm.Blues_r)
+
 a = subplot.contour(xx, yy, Z, levels=[threshold],
-                    linewidths=0.6, colors='black')
+                        linewidths=0.5, colors='black',zorder=4)
 
 df_outlier = df[~y_pred]
 df_feedback = df_outlier[(df_outlier["usage proportion"]>df["usage proportion"].median())
-                & (df_outlier["usage_percentage"]>df["usage_percentage"].median())]
-subplot.scatter(df_feedback["usage proportion"], df_feedback["usage_percentage"], c='red',alpha=0.7)
+                    & (df_outlier["usage_percentage"]>df["usage_percentage"].median())]
+
+df_regular = df[y_pred]
 
 df_outlier_no_feedback = df_outlier[(df_outlier["usage proportion"]<=df["usage proportion"].median())
-                & (df_outlier["usage_percentage"]<=df["usage_percentage"].median())]
+                    | (df_outlier["usage_percentage"]<=df["usage_percentage"].median())]
+subplot.scatter(df_regular["usage proportion"],
+                    df_regular["usage_percentage"],
+                    c='gray',alpha=0.6,zorder=0,lw=0.2)
 
 subplot.scatter(df_outlier_no_feedback["usage proportion"],
-                df_outlier_no_feedback["usage_percentage"], c='gray',alpha=0.4)
+                    df_outlier_no_feedback["usage_percentage"],
+                    c='gray',alpha=0.6,zorder=0,lw=0.2)
 
-df_non_outlier = df[y_pred]
-
-subplot.scatter(df_non_outlier["usage proportion"],
-                df_non_outlier["usage_percentage"], c='gray',alpha=0.4)
-
-
-
-#subplot.contourf(xx, yy, Z, levels=[threshold, Z.max()],
-#                 colors='orange')
-#b = subplot.scatter(XY[:-n_outliers, 0], XY[:-n_outliers, 1], c='red')
-#c = subplot.scatter(XY[-n_outliers:, 0], XY[-n_outliers:, 1], c='white')
-#c = subplot.scatter(XY[-n_outliers:, 0], XY[-n_outliers:, 1], c='red')
+subplot.scatter(df_feedback["usage proportion"],
+                    df_feedback["usage_percentage"],
+                    c='red',alpha=0.6,zorder=5,lw=0.2)
 subplot.axis('tight')
-#subplot.legend(
-#    [a.collections[0]],
-#    ['Learned decision function'], loc=4)
-#subplot.set_xlabel("%d. %s (errors: %d)" % (1, "rob", n_errors))
+
 subplot.set_xlim((0,1))
-subplot.set_ylim((0,100))
-#plt.axhspan(df["usage_percentage"].median(), df["usage_percentage"].median())
-#plt.axvspan(df["usage proportion"].median(), df["usage proportion"].median())
-#plt.subplots_adjust(0.04, 0.1, 0.96, 0.94, 0.1, 0.26)
+subplot.set_ylim((0,40))
+med_x = df["usage proportion"].median()
+plt.axhspan(df["usage_percentage"].median(), df["usage_percentage"].median(),alpha=0.5,lw=0.2)
+plt.axvspan(med_x, df["usage proportion"].median(),alpha=0.5,lw=0.2)
+plt.axhspan(ymin=df["usage_percentage"].median(), ymax=40,xmin=med_x,facecolor='green',edgecolor='green',alpha=0.07)
+#plt.axhspan(ymin=df["usage_percentage"].median(), ymax=40,xmin=med_x,facecolor='green',edgecolor='green',alpha=0.07)
+plt.axvspan(xmin=df["usage proportion"].median(), xmax=1,ymin=df["usage_percentage"].median(),ymax=40,facecolor='green',edgecolor='green',alpha=0.07)
+# plt.subplots_adjust(0.04, 0.1, 0.96, 0.94, 0.1, 0.26)
 format_axes(plt.gca())
 plt.xlabel("Proportion of usage cycles")
 plt.ylabel(r"Usage energy $\%$")
-ylims = plt.ylim()
-#plt.ylim((ylims[0]-5, ylims[1]+5))
-xlims = plt.xlim()
-#plt.xlim((xlims[0]-0.1, xlims[1]+0.1))
 plt.tight_layout()
-plt.savefig("../../figures/fridge/usage_energy_ratio.png")
-plt.savefig("../../figures/fridge/usage_energy_ratio.pdf")
+plt.savefig("../../figures/fridge/usage_energy_ratio.png",bbox_inches="tight")
+plt.savefig("../../figures/fridge/usage_energy_ratio.pdf",bbox_inches="tight")
 #plt.show()
 
 

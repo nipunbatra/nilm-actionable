@@ -37,7 +37,7 @@ xx, yy = np.meshgrid(np.linspace(X.min() - 0.3, X.max() + 0.1, 500), np.linspace
 n_inliers = int((1. - outliers_fraction) * n_samples)
 n_outliers = int(outliers_fraction * n_samples)
 
-latexify()
+latexify(fig_height=1.5)
 # Fit the problem with varying cluster separation
 np.random.seed(42)
 # Data generation
@@ -80,7 +80,7 @@ subplot.scatter(df_regular["num_defrost_per_day"],
 
 subplot.scatter(df_outlier_no_feedback["num_defrost_per_day"],
                     df_outlier_no_feedback["defrost_percentage"],
-                    c='gray',alpha=0.6,zorder=0,lw=0.2)
+                    c='red',alpha=0.6,zorder=5,lw=0.2)
 
 subplot.scatter(df_feedback["num_defrost_per_day"],
                     df_feedback["defrost_percentage"],

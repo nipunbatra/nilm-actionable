@@ -21,7 +21,7 @@ df.index = pd.to_datetime(df.index)
 df_res = df['04-8-2015']
 
 from common_functions import latexify, format_axes
-latexify(columns=1, fig_height=2.6)
+latexify(columns=1, fig_height=1.7)
 
 
 ax = df_res.plot(linewidth=0.7, color='black')

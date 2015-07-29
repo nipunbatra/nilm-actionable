@@ -153,7 +153,7 @@ def plot_overall(out):
     for N in range(2,5):
         output[N] = variation_in_top_k(out, num_states=N)
 
-        for row, metric in enumerate(["f_score", "error energy", "mae power"]):
+        for row, metric in enumerate(["f_score", "error energy", "rmse power"]):
             df = pd.DataFrame(output[N][metric]).T
             if metric=="error energy":
                 df=df.mul(100)
@@ -176,6 +176,7 @@ def plot_overall(out):
                 2:(0, 140)
             }
     }
+    """
     for i in range(3):
         ax[0,i].set_ylim(ylims[appliance][0])
     for i in range(3):
@@ -185,10 +186,10 @@ def plot_overall(out):
     for i in range(3):
         ax[-1,i].set_xlabel("Top-K")
         ax[0,i].set_title("N=%d" %(i+2))
-
+    """
     ax[0,0].set_ylabel("F score\n (Higher is better)")
     ax[1,0].set_ylabel(r"\% Error" "\n" "in Energy" "\n" "(Lower is better)")
-    ax[2,0].set_ylabel("Mean absolute error\n in power (W)\n (Lower is better)")
+    ax[2,0].set_ylabel("Root mean squared error\n in power (W)\n (Lower is better)")
 
     co_patch = mpatches.Patch(color='blue', label='CO')
     fhmm_patch =  mpatches.Patch(color='green', label='FHMM')
@@ -215,9 +216,9 @@ def plot_variation_num_states(o):
     error_energy["Hart"] = error_energy["Hart"].value_counts().head(1).index[0]
     error_energy.plot(ax=ax[0], kind="bar", rot=0)
     ax[0].set_ylabel(r"\% Error" "\n" "in Energy")
-    mae_power = pd.DataFrame(o["mae power"]).T
-    mae_power["Hart"] =  mae_power["Hart"].value_counts().head(1).index[0]
-    mae_power.plot(ax=ax[1], kind="bar", legend=False, rot=0)
+    rmse_power = pd.DataFrame(o["rmse power"]).T
+    rmse_power["Hart"] =  rmse_power["Hart"].value_counts().head(1).index[0]
+    rmse_power.plot(ax=ax[1], kind="bar", legend=False, rot=0)
     ax[1].set_ylabel("Mean absolute error\n in power (W)")
     f_score = pd.DataFrame(o["f_score"]).T
     f_score["Hart"] =  f_score["Hart"].value_counts().head(1).index[0]
@@ -242,9 +243,9 @@ def plot_variation_top_k(o):
     error_energy["Hart"] = error_energy["Hart"].value_counts().head(1).index[0]
     error_energy.plot(ax=ax[0], kind="bar", rot=0)
     ax[0].set_ylabel(r"\% Error" "\n" "in Energy")
-    mae_power = pd.DataFrame(o["mae power"]).T
-    mae_power["Hart"] =  mae_power["Hart"].value_counts().head(1).index[0]
-    mae_power.plot(ax=ax[1], kind="bar", legend=False, rot=0)
+    rmse_power = pd.DataFrame(o["rmse power"]).T
+    rmse_power["Hart"] =  rmse_power["Hart"].value_counts().head(1).index[0]
+    rmse_power.plot(ax=ax[1], kind="bar", legend=False, rot=0)
     ax[1].set_ylabel("Mean absolute error\n in power (W)")
     f_score = pd.DataFrame(o["f_score"]).T
     f_score["Hart"] =  f_score["Hart"].value_counts().head(1).index[0]
@@ -267,7 +268,7 @@ def plot_variation_top_k(o):
 def variation_in_top_k(out, num_states=2, train_fraction=50):
     o = {}
 
-    for metric in ["f_score", "error energy", "mae power"]:
+    for metric in ["f_score", "error energy", "rmse power"]:
 
         o[metric] = {}
         if num_states not in out.keys():

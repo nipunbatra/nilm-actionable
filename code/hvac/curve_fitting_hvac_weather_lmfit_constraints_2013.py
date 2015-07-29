@@ -219,9 +219,9 @@ energy_hourly_mean_df = get_hourly_aggregate(energy_df)
 temp_hourly_mean_df = get_hourly_aggregate(hour_usage_df[["temperature"]])
 
 from common_functions import latexify, format_axes
-latexify(columns=1, fig_height=3.4)
+latexify(columns=1, fig_height=3.0)
 fig, ax = plt.subplots(nrows=2)
-ax[0].scatter(data, final)
+ax[0].scatter(data, final, color="gray",alpha=0.4, s=2)
 ax[0].set_xlabel("Actual energy consumption(kWh)\n(a)")
 ax[0].set_ylabel("Predicted energy\n consumption(kWh)")
 

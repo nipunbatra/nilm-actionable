@@ -31,14 +31,14 @@ rice_malfunction = OrderedDict({
 })
 
 
-colors = ["purple","g","b","magenta","gray"]
+colors = ["red","g","b","magenta","gray"]
 fridge_labels =wiki_malfunction.keys()
-fridge_labels.append("Rice Hall (Name?)")
+fridge_labels.append("General Electric\n pfcs1nfzss")
 def plot_malfunction(malfunction_dict, ax, title):
     for i, (fridge_name, fridge_pair_powers) in enumerate(malfunction_dict.items()):
         xs = [fridge_pair_powers[0][0], fridge_pair_powers[1][0]]
         ys = [fridge_pair_powers[0][1], fridge_pair_powers[1][1]]
-        ax.scatter(xs, ys, label=fridge_name, marker='.',alpha=0)
+        ax.scatter(xs, ys, label=fridge_name, marker='.',alpha=0.2,color=colors[i])
         print fridge_name
         print xs
         print ys
@@ -48,8 +48,8 @@ def plot_malfunction(malfunction_dict, ax, title):
         x_start, dx  = xs[0], xs[1]-xs[0]
         y_start, dy = ys[0], ys[1]-ys[0]
         print x_start, dx, y_start, dy
-        ax.arrow(x_start, y_start, dx, dy,
-                 head_width=5, head_length=10, fc=colors[i], ec=colors[i], lw=0.7)
+        #ax.arrow(x_start, y_start, dx, dy,
+        #         head_width=5, head_length=10, fc=colors[i], ec=colors[i], lw=0.7,zorder=(10-2*i))
         #  ax.annotate(percent_savings[fridge_name], xy=(x, y), xytext=(x, y),
         #            )
     #ax.set_ylabel("Transient power (W)")
@@ -85,20 +85,20 @@ ax[1].set_xlabel("Steady state power (W)")
 fig.text(-0.01, 0.5, 'Transient Power (W)', va='center', rotation='vertical')
 
 
-ax[0].arrow(80,1100,30,200,
-                 head_width=5, head_length=10, fc="gray", ec="gray", lw=0.7)
-ax[1].arrow(80,100,30,300,
-                 head_width=5, head_length=10, fc="gray", ec="gray", lw=0.7)
+#ax[0].arrow(80,1100,30,200,
+#                 head_width=5, head_length=10, fc="gray", ec="gray", lw=0.7)
+#ax[1].arrow(80,100,30,300,
+#                 head_width=5, head_length=10, fc="gray", ec="gray", lw=0.7)
 
 d = .015 # how big to make the diagonal lines in axes coordinates
 # arguments to pass plot, just so we don't keep repeating them
 kwargs = dict(transform=ax[0].transAxes, color='k', clip_on=False)
 ax[0].plot((-d,+d),(-d,+d), **kwargs)      # top-left diagonal
-ax[0].plot((1-d,1+d),(-d,+d), **kwargs)    # top-right diagonal
+#ax[0].plot((1-d,1+d),(-d,+d), **kwargs)    # top-right diagonal
 
 kwargs.update(transform=ax[1].transAxes)  # switch to the bottom axes
 ax[1].plot((-d,+d),(1-d,1+d), **kwargs)   # bottom-left diagonal
-ax[1].plot((1-d,1+d),(1-d,1+d), **kwargs) # bottom-right diagonal
+#ax[1].plot((1-d,1+d),(1-d,1+d), **kwargs) # bottom-right diagonal
 
 fig.tight_layout()
 
@@ -106,9 +106,11 @@ patches = []
 for color, label in zip(colors, fridge_labels):
     patches.append(mpatches.Patch(color=color, label=label))
 
-fig.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05),
-      ncol=2,handles=patches,
+fig.legend(loc='upper center', bbox_to_anchor=(0.55, 1.05),
+      ncol=3,handles=patches,
        labels=fridge_labels)
+
+
 
 
 plt.savefig("../../figures/fridge/identical_fridge.pdf", bbox_inches="tight")

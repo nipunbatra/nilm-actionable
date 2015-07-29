@@ -20,8 +20,12 @@ RESULT_PATH = os.path.join(script_path, "..","..","data/fridge")
 df = pd.read_csv(DATA_PATH, index_col=0)
 
 #FOLDER_NAMES = ["N2_K4_T50_Hart", "N2_K4_T50_CO", "N2_K4_T50_FHMM", "N3_K4_T50_CO" , "N3_K4_T50_FHMM"]
-FOLDER_NAMES = ["N3_K4_T50_CO" , "N3_K4_T50_FHMM","N2_K4_T50_Hart"]
-latexify(columns=2, fig_height=2.6)
+#FOLDER_NAMES = ["N3_K4_T50_CO" , "N3_K4_T50_FHMM","N2_K4_T50_Hart"]
+FOLDER_NAMES = ["N2_K3_T50_CO" , "N2_K3_T50_FHMM","N2_K4_T50_Hart"]
+#FOLDER_NAMES = ["N2_K3_T50_CO" , "N2_K3_T50_FHMM","N2_K4_T50_Hart",
+#                "N3_K3_T50_CO","N3_K3_T50_FHMM"]
+
+latexify(columns=2, fig_height=1.7)
 fig, ax = plt.subplots(ncols=len(FOLDER_NAMES), sharey=True)
 
 for i, folder in enumerate(FOLDER_NAMES):
