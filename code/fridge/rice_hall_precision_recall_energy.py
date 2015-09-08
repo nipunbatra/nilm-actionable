@@ -85,7 +85,7 @@ plt.tight_layout()
 
 L = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.35),
           ncol=3)
-L.get_texts()[0].set_text(r'Usage Energy' '\n' r'Error $\%$')
+L.get_texts()[0].set_text(r'Usage Energy' '\nProportion')
 L.get_texts()[1].set_text(r'Precision')
 L.get_texts()[2].set_text(r'Recall')
 #plt.tight_layout()
