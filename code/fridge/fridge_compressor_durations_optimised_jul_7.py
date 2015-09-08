@@ -450,9 +450,11 @@ def execute():
     d_new["baseline_percentage"] = d_new.baseline * 100 / d_new.total
     d_new["defrost_percentage"] = d_new.defrost * 100 / d_new.total
     d_new["usage_percentage"] = d_new.usage * 100 / d_new.total
+    # UNCOMMENT THE NEXT LINE WHEN EXECUTING FOR CREATING `usage_defrost_cycles.csv`
+    #d_new.to_csv("../../data/fridge/usage_defrost_cycles.csv", index_label="home")
     return d_new
 
-    # d_new.to_csv("../../data/fridge/usage_defrost_cycles.csv", index_label="home")
+
 
 
 """

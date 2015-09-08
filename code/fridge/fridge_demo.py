@@ -16,7 +16,8 @@ def read_fridge_csv(csv_path):
     df.index = pd.to_datetime(df.index)
     return df
 
-df = read_fridge_csv('/Users/nipunbatra/Documents/HOBOware/power_42.csv')['power']
+import os
+df = read_fridge_csv(os.path.expanduser('~Documents/HOBOware/power_42.csv'))['power']
 df.index = pd.to_datetime(df.index)
 df_res = df['04-8-2015']
 

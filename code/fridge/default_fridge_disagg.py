@@ -4,11 +4,11 @@ from nilmtk import DataSet
 import nilmtk
 import pandas as pd
 import numpy as np
-from numba import autojit, jit
-
+import os
 warnings.filterwarnings("ignore")
 
-ds = DataSet("/Users/nipunbatra/Downloads/wikienergy-2.h5")
+
+ds = DataSet(os.path.expanduser("~/Downloads/wikienergy-2.h5"))
 fridges = nilmtk.global_meter_group.select_using_appliances(type='fridge')
 
 Wm_to_kwh = 1.66666667 * 1e-5

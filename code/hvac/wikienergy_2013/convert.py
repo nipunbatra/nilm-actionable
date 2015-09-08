@@ -184,25 +184,26 @@ feed_ignore = ['gen', 'grid']
 
 WEATHER_HVAC_STORE = os.path.join(script_path, '..', '..', '..', 'data/hvac/weather_hvac_2013.h5')
 
-store_total = pd.HDFStore("/Users/nipunbatra/Downloads/wiki-temp.h5")
+temp_h5_path = os.path.expanduser("~/Downloads/wiki-temp.h5")
+
+store_total = pd.HDFStore(temp_h5_path)
 
 store_useful = pd.HDFStore(WEATHER_HVAC_STORE)
 useful_keys = [k[:-2] for k in store_useful.keys() if "X" in k]
 
 START, STOP = "2013-07-01", "2013-07-31"
 
-store_name = "/Users/nipunbatra/wikienergy-2013.h5"
+store_name = os.path.expanduser("~/wikienergy-2013.h5")
 with pd.HDFStore(store_name, "w") as store_to_write:
-
     for nilmtk_id, dataid_str in enumerate(useful_keys):
 
         dataid = int(dataid_str[1:])
 
         df = store_total[dataid_str][START:STOP]
-        if df['air1'].sum()>0:
+        if df['air1'].sum() > 0:
             print("Writing ", nilmtk_id, dataid)
             _dataport_dataframe_to_hdf(df, store_to_write, nilmtk_id + 1, dataid)
         else:
-            print ("Skipping", nilmtk_id, dataid)
+            print("Skipping", nilmtk_id, dataid)
     convert_yaml_to_hdf5(join(_get_module_directory(), 'metadata'),
                          store_name)
