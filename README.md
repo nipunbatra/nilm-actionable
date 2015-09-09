@@ -18,9 +18,11 @@ Please use the following bib for citing our work:
 #### Data downloads
 You'll need to request me (nipunb@iiitd.ac.in) for getting access to binary data. Once done, you can download the following: 
 
-|Sno|Data|Location in loclal machine|
-|1|[Rice hall fridge data](https://drive.google.com/open?id=0BzucT_Ri96VNa0tKM0VSVHZpalE)|~\Documents|
-
+| Sno | Data | Location in local machine|
+| 1 | [Rice hall fridge data](https://drive.google.com/open?id=0BzucT_Ri96VNa0tKM0VSVHZpalE) | ~\Documents |
+| 2 | [Wiki-temp.h5](https://drive.google.com/open?id=0BzucT_Ri96VNZTlnUGJsdXBKOUE) | ~\Downloads |
+| 3 | [wikienergy-2.h5](https://drive.google.com/open?id=0BzucT_Ri96VNOTdvZ0IxU0ljaUU) | ~\|
+| 4 | [wikinergy-2013.h5](https://drive.google.com/open?id=0BzucT_Ri96VNa3d1XzVRZ2NsUzA) | ~\|
 
 #### Code for generating figures
 
