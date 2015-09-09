@@ -170,3 +170,5 @@ for n, dn in d.iteritems():
             value_dict["predicted_labels"] = predicted_labels
             value_dict["optimal_seed"] = optimal_seed
 
+from sklearn.externals import joblib
+joblib.dump(clf, '/Users/nipunbatra/git/nilm-actionable/data/hvac/rf_hvac.pkl')
