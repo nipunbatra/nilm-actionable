@@ -270,5 +270,5 @@ results = {}
 results["binary"] = pd.DataFrame(out["binary"]).T
 results["minutes"] = pd.DataFrame(out["minutes"]).T
 
-results["binary"].to_csv("../../data/hvac/binary_a3_score.csv", index_label="dataid")
-results["minutes"].to_csv("../../data/hvac/minutes_a3_score.csv", index_label="dataid")
+results["binary"].to_csv("../../data/hvac/binary_GT.csv", index_label="dataid")
+results["minutes"].to_csv("../../data/hvac/minutes_GT.csv", index_label="dataid")
