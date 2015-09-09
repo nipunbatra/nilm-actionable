@@ -18,11 +18,13 @@ Please use the following bib for citing our work:
 #### Data downloads
 You'll need to request me (nipunb@iiitd.ac.in) for getting access to binary data. Once done, you can download the following: 
 
-| Sno | Data | Location in local machine|
-| 1 | [Rice hall fridge data](https://drive.google.com/open?id=0BzucT_Ri96VNa0tKM0VSVHZpalE) | ~\Documents |
-| 2 | [Wiki-temp.h5](https://drive.google.com/open?id=0BzucT_Ri96VNZTlnUGJsdXBKOUE) | ~\Downloads |
-| 3 | [wikienergy-2.h5](https://drive.google.com/open?id=0BzucT_Ri96VNOTdvZ0IxU0ljaUU) | ~\|
-| 4 | [wikinergy-2013.h5](https://drive.google.com/open?id=0BzucT_Ri96VNa3d1XzVRZ2NsUzA) | ~\|
+
+| Sno | Data | Location in local machine| Description |
+| :------------ |:---------------:| -----:|:----|
+| 1 | [Rice hall fridge data](https://drive.google.com/open?id=0BzucT_Ri96VNa0tKM0VSVHZpalE) | ~\Documents | Contains data for controlled experiments | 
+| 2 | [Wiki-temp.h5](https://drive.google.com/open?id=0BzucT_Ri96VNZTlnUGJsdXBKOUE) | ~\Downloads | Contains data newer version of dataport |
+| 3 | [wikienergy-2.h5](https://drive.google.com/open?id=0BzucT_Ri96VNOTdvZ0IxU0ljaUU) | ~\ | Contains data for old version of data port|
+| 4 | [wikinergy-2013.h5](https://drive.google.com/open?id=0BzucT_Ri96VNa3d1XzVRZ2NsUzA) | ~\ | Contains data for 2013, needed since our HVAC survey is from the same time|
 
 #### Code for generating figures
 
