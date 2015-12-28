@@ -1,6 +1,6 @@
 ### If you can measure, can you save it? Exploring The Value of Energy Disaggregation
 
-This is the github repository corresponding to our Buildsys 2015 paper.
+This is the github repository corresponding to our [Buildsys 2015 paper](https://www.iiitd.edu.in/~nipunb/papers/batra_buildsys_15.pdf).
 
 Please use the following bib for citing our work:
 
